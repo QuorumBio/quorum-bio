@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Biomedical NER: Chemical and Disease</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1b1b1f}
+textarea{width:100%;box-sizing:border-box;font:inherit;padding:.6rem;border:1px solid #bbb;border-radius:6px}
+button{font:inherit;padding:.5rem 1.1rem;border:0;border-radius:6px;background:#2d5be3;color:#fff;cursor:pointer;margin:.5rem 0}
+button:disabled{background:#999;cursor:wait}
+#out{border:1px solid #ddd;border-radius:6px;padding:.8rem;min-height:3rem;white-space:pre-wrap}
+mark{padding:.05rem .25rem;border-radius:4px;color:#000}
+mark.Chemical{background:#bfe3ff}mark.Disease{background:#ffd0cc}
+mark small{font-size:.65em;margin-left:.3em;opacity:.7}
+.note{font-size:.9rem;color:#555}
+</style></head><body>
+<h1>Biomedical NER: Chemical and Disease</h1>
+<p class="note">Runs entirely in your browser with an int8 ONNX model (first load downloads about 110 MB). English only. Research demo, not for clinical decisions. Model: <a href="https://huggingface.co/quorumbio/biomed-ner-chem-disease">quorumbio/biomed-ner-chem-disease</a> (Apache-2.0).</p>
+<textarea id="t" rows="6">Lidocaine-induced cardiac asystole developed in a patient with chronic renal failure. Naloxone reverses the antihypertensive effect of clonidine.</textarea>
+<button id="go" disabled>Loading model...</button>
+<div id="out"></div>
+<script type="module">
+import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers";
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+let ner;
+try {
+  ner = await pipeline("token-classification", "quorumbio/biomed-ner-chem-disease", { dtype: "q8" });
+  $("go").disabled = false; $("go").textContent = "Tag entities";
+} catch (e) { $("go").textContent = "Model failed to load"; $("out").textContent = String(e); }
+async function run() {
+  const text = $("t").value, lower = text.toLowerCase();
+  $("go").disabled = true;
+  const toks = await ner(text);
+  let cur = 0; const spans = [];
+  for (const k of toks) {
+    if (k.entity === "O") continue;
+    const w = k.word.replace(/^##/, "");
+    const i = lower.indexOf(w, cur); if (i < 0) continue;
+    const [bi, type] = k.entity.split("-"); const last = spans[spans.length - 1];
+    cur = i + w.length;
+    if (bi === "I" && last && last.type === type && i - last.end <= 1) last.end = cur;
+    else spans.push({ type, start: i, end: cur });
+  }
+  let html = "", pos = 0;
+  for (const s of spans) {
+    html += esc(text.slice(pos, s.start)) + `<mark class="${s.type}">${esc(text.slice(s.start, s.end))}<small>${s.type}</small></mark>`;
+    pos = s.end;
+  }
+  $("out").innerHTML = html + esc(text.slice(pos));
+  $("go").disabled = false;
+}
+$("go").addEventListener("click", run);
+</script></body></html>

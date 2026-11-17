@@ -1,0 +1,31 @@
+{
+  "files": {
+    "fp32": {
+      "path": "model.onnx",
+      "mb": 435.8
+    },
+    "int8": {
+      "path": "model_quantized.onnx",
+      "mb": 109.7
+    }
+  },
+  "fp32": {
+    "precision": 0.8826147151898734,
+    "recall": 0.9098786828422877,
+    "f1": 0.8960393554540435,
+    "cpu_seconds_total": 118.3,
+    "ms_per_sentence": 24.54
+  },
+  "parity_fp32_vs_torch": {
+    "sentences_checked": 300,
+    "max_abs_logit_diff": 5.5789947509765625e-05,
+    "token_argmax_agreement": 1.0
+  },
+  "int8": {
+    "precision": 0.8796999901312543,
+    "recall": 0.9087572637373841,
+    "f1": 0.8939925784775851,
+    "cpu_seconds_total": 65.9,
+    "ms_per_sentence": 13.67
+  }
+}

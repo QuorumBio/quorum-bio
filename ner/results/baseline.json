@@ -1,0 +1,206 @@
+{
+  "run1": {
+    "model": "C:\\QuorumBio\\ner\\models\\run1",
+    "params_millions": 108.9,
+    "sentences": 4821,
+    "gpu_seconds": 16.1,
+    "precision": 0.8815399802566634,
+    "recall": 0.9103884187990621,
+    "f1": 0.8957319825467677,
+    "per_type": {
+      "Chemical": {
+        "precision": 0.929520295202952,
+        "recall": 0.9355617455896007,
+        "f1-score": 0.9325312355391023,
+        "support": 5385.0
+      },
+      "Disease": {
+        "precision": 0.8263269639065818,
+        "recall": 0.879746835443038,
+        "f1-score": 0.8522005693015109,
+        "support": 4424.0
+      },
+      "micro avg": {
+        "precision": 0.8815399802566634,
+        "recall": 0.9103884187990621,
+        "f1-score": 0.8957319825467677,
+        "support": 9809.0
+      },
+      "macro avg": {
+        "precision": 0.8779236295547669,
+        "recall": 0.9076542905163194,
+        "f1-score": 0.8923659024203066,
+        "support": 9809.0
+      },
+      "weighted avg": {
+        "precision": 0.8829786194301779,
+        "recall": 0.9103884187990621,
+        "f1-score": 0.8963009503484505,
+        "support": 9809.0
+      }
+    },
+    "predicted_groups_seen": {
+      "Chemical": 5642,
+      "Disease": 4732
+    }
+  },
+  "d4data_strict_mapping": {
+    "model": "d4data/biomedical-ner-all",
+    "params_millions": 66.4,
+    "sentences": 4821,
+    "gpu_seconds": 13.7,
+    "precision": 0.6288796680497926,
+    "recall": 0.3862779080436334,
+    "f1": 0.4785903751420993,
+    "per_type": {
+      "Chemical": {
+        "precision": 0.7100202429149798,
+        "recall": 0.5210770659238626,
+        "f1-score": 0.6010495876619899,
+        "support": 5385.0
+      },
+      "Disease": {
+        "precision": 0.4741919922817173,
+        "recall": 0.22219710669077758,
+        "f1-score": 0.3026012005541019,
+        "support": 4424.0
+      },
+      "micro avg": {
+        "precision": 0.6288796680497926,
+        "recall": 0.3862779080436334,
+        "f1-score": 0.4785903751420993,
+        "support": 9809.0
+      },
+      "macro avg": {
+        "precision": 0.5921061175983485,
+        "recall": 0.37163708630732006,
+        "f1-score": 0.4518253941080459,
+        "support": 9809.0
+      },
+      "weighted avg": {
+        "precision": 0.6036583119534594,
+        "recall": 0.3862779080436334,
+        "f1-score": 0.4664450750138814,
+        "support": 9809.0
+      }
+    },
+    "predicted_groups_seen": {
+      "Detailed_description": 3870,
+      "Medication": 6065,
+      "Nonbiological_location": 147,
+      "Disease_disorder": 2651,
+      "Lab_value": 3266,
+      "Sign_symptom": 3261,
+      "Diagnostic_procedure": 4575,
+      "Administration": 502,
+      "Dosage": 668,
+      "Coreference": 483,
+      "Severity": 236,
+      "Therapeutic_procedure": 672,
+      "History": 189,
+      "Clinical_event": 172,
+      "Biological_structure": 1691,
+      "Subject": 119,
+      "Duration": 270,
+      "Sex": 147,
+      "Date": 274,
+      "Personal_background": 28,
+      "Family_history": 14,
+      "Frequency": 49,
+      "Age": 101,
+      "Quantitative_concept": 57,
+      "Activity": 79,
+      "Time": 83,
+      "Outcome": 39,
+      "Volume": 8,
+      "Other_entity": 6,
+      "Texture": 1,
+      "Shape": 3,
+      "Qualitative_concept": 5,
+      "Other_event": 9,
+      "Color": 4,
+      "Area": 3,
+      "Distance": 3
+    }
+  },
+  "d4data_generous_mapping": {
+    "model": "d4data/biomedical-ner-all",
+    "params_millions": 66.4,
+    "sentences": 4821,
+    "gpu_seconds": 13.8,
+    "precision": 0.578853046594982,
+    "recall": 0.49393414211438474,
+    "f1": 0.5330326200561086,
+    "per_type": {
+      "Chemical": {
+        "precision": 0.7105596353507218,
+        "recall": 0.5210770659238626,
+        "f1-score": 0.6012427683736876,
+        "support": 5385.0
+      },
+      "Disease": {
+        "precision": 0.46120787152228004,
+        "recall": 0.4608951175406872,
+        "f1-score": 0.46105144149236854,
+        "support": 4424.0
+      },
+      "micro avg": {
+        "precision": 0.578853046594982,
+        "recall": 0.49393414211438474,
+        "f1-score": 0.5330326200561086,
+        "support": 9809.0
+      },
+      "macro avg": {
+        "precision": 0.5858837534365009,
+        "recall": 0.4909860917322749,
+        "f1-score": 0.5311471049330281,
+        "support": 9809.0
+      },
+      "weighted avg": {
+        "precision": 0.5980984055437051,
+        "recall": 0.49393414211438474,
+        "f1-score": 0.5380144647624168,
+        "support": 9809.0
+      }
+    },
+    "predicted_groups_seen": {
+      "Detailed_description": 3870,
+      "Medication": 6065,
+      "Nonbiological_location": 147,
+      "Disease_disorder": 2651,
+      "Lab_value": 3266,
+      "Sign_symptom": 3261,
+      "Diagnostic_procedure": 4575,
+      "Administration": 502,
+      "Dosage": 668,
+      "Coreference": 483,
+      "Severity": 236,
+      "Therapeutic_procedure": 672,
+      "History": 189,
+      "Clinical_event": 172,
+      "Biological_structure": 1691,
+      "Subject": 119,
+      "Duration": 270,
+      "Sex": 147,
+      "Date": 274,
+      "Personal_background": 28,
+      "Family_history": 14,
+      "Frequency": 49,
+      "Age": 101,
+      "Quantitative_concept": 57,
+      "Activity": 79,
+      "Time": 83,
+      "Outcome": 39,
+      "Volume": 8,
+      "Other_entity": 6,
+      "Texture": 1,
+      "Shape": 3,
+      "Qualitative_concept": 5,
+      "Other_event": 9,
+      "Color": 4,
+      "Area": 3,
+      "Distance": 3
+    }
+  },
+  "note": "d4data/biomedical-ner-all is a general 84-type model not trained on BC5CDR; label mapping is our approximation (strict: Disease_disorder->Disease, Medication->Chemical; generous: also Sign_symptom->Disease). run1 was trained on the BC5CDR training set."
+}

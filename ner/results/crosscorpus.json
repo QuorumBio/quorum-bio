@@ -1,0 +1,9 @@
+{
+  "ncbi_disease_test_disease_only (out-of-domain, never trained on)": {
+    "precision": 0.7798,
+    "recall": 0.701,
+    "f1": 0.7383,
+    "sentences": 975,
+    "gold_entities": 960
+  }
+}

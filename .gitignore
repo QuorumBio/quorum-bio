@@ -1,0 +1,12 @@
+venv/
+logs/
+__pycache__/
+*.pt
+*.safetensors
+*.onnx
+data/raw/
+CREDENTIALS.md
+.env
+ner/data/
+ner/models/
+ner/release/
