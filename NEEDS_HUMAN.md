@@ -1,5 +1,4 @@
 # NEEDS_HUMAN
-1. Double-click run_finish.bat in C:\QuorumBio. It re-uploads the updated model card (adds the NCBI-disease check) and pushes the code to GitHub. (run_push.bat alone does only the GitHub part.) It commits and pushes the code to github.com/QuorumBio/quorum-bio using the token in .env. I could not launch it myself: Firefox kept the foreground, so my File Explorer access was refused. Close/minimize Firefox and tell me, or just double-click it.
 2. Legal question (non-blocking): BC5CDR has no explicit license text from its distributors. I released the model under Apache-2.0 and disclosed that in the model card. Say if you want it changed or the model retrained on NCBI-disease only (clearly public domain).
 3. Gradio Spaces need a Hugging Face PRO subscription on free accounts (HTTP 402). I built a free static Space instead. Decide if paying for PRO is worth it for a Gradio demo. Nothing from the $20 compute budget has been spent.
 4. Computer-use approval expires every 24h; re-approve when asked. Optional: allow huggingface.co in claude.ai Settings > Capabilities so the cloud workspace can reach HF.

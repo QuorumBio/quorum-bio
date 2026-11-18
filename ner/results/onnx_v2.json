@@ -1,0 +1,41 @@
+{
+  "files": {
+    "fp32": {
+      "path": "model.onnx",
+      "mb": 435.8
+    },
+    "int8": {
+      "path": "model_quantized.onnx",
+      "mb": 109.7
+    }
+  },
+  "fp32": {
+    "precision": 0.8817570955771739,
+    "recall": 0.8963197063920889,
+    "f1": 0.8889787664307383,
+    "cpu_seconds_total": 118.0,
+    "ms_per_sentence": 24.47,
+    "ncbi_disease_disease_only": {
+      "precision": 0.8585657370517928,
+      "recall": 0.8979166666666667,
+      "f1": 0.8778004073319755
+    }
+  },
+  "parity_fp32_vs_torch": {
+    "sentences_checked": 300,
+    "max_abs_logit_diff": 3.4332275390625e-05,
+    "token_argmax_agreement": 1.0
+  },
+  "int8": {
+    "precision": 0.8807533487763118,
+    "recall": 0.8915281883984096,
+    "f1": 0.8861080149964535,
+    "cpu_seconds_total": 65.7,
+    "ms_per_sentence": 13.63,
+    "ncbi_disease_disease_only": {
+      "precision": 0.8604187437686939,
+      "recall": 0.8989583333333333,
+      "f1": 0.879266428935303
+    }
+  }
+}

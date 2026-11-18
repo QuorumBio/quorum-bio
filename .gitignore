@@ -10,3 +10,6 @@ CREDENTIALS.md
 ner/data/
 ner/models/
 ner/release/
+loc/data/
+loc/models/
+loc/tools/
