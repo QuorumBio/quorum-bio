@@ -59,7 +59,7 @@ ner("Naloxone reverses the antihypertensive effect of clonidine.")
 ONNX: `onnx/model.onnx` (fp32, {O['files']['fp32']['mb']} MB) and `onnx/model_quantized.onnx` (dynamic int8, {O['files']['int8']['mb']} MB), inputs `input_ids`, `attention_mask`, `token_type_ids`, output `logits`. Tokenize with the tokenizer in this repo.
 
 ## Results
-Entity-level precision / recall / F1 (seqeval) on words from a simple regex tokenizer, sentence-split input, test splits scored once. The checkpoint was chosen on the **validation** sets (best mean validation entity F1 across the two corpora, epoch {ep}). Single training run, single seed ({R['args']['seed']}), no confidence intervals; small differences are not meaningful.
+Entity-level precision / recall / F1 (seqeval) on words from a simple regex tokenizer, sentence-split input, test splits scored once. The checkpoint was chosen on the **validation** sets (best mean validation entity F1 across the two corpora, epoch {ep}). The released checkpoint is seed {R['args']['seed']}; seed variation is measured below.
 
 | Test set | Entity types scored | P / R / F1 | v1 (BC5CDR only) F1 |
 |---|---|---|---|
@@ -68,7 +68,17 @@ Entity-level precision / recall / F1 (seqeval) on words from a simple regex toke
 
 BC5CDR per type (P / R / F1): Chemical {pt(ab,'Chemical')}; Disease {pt(ab,'Disease')}.
 
-NCBI-disease annotates Disease only, so on that test set predicted Chemical mentions are dropped before scoring. Adding NCBI-disease to training barely moved BC5CDR (a difference within what one seed can produce) and raised NCBI-disease F1 a lot, which is expected since it is now in-domain. We also tried ignoring O labels for NCBI sentences (to avoid penalizing unlabeled chemicals); that variant collapsed precision on NCBI-disease (F1 0.427) and was discarded.
+NCBI-disease annotates Disease only, so on that test set predicted Chemical mentions are dropped before scoring. Adding NCBI-disease to training lowered BC5CDR F1 slightly (v1, a single seed: 0.896; v2 over 5 seeds: 0.889 ± 0.002, so the drop looks real but small) and raised NCBI-disease F1 a lot, which is expected since it is now in-domain. We also tried ignoring O labels for NCBI sentences (to avoid penalizing unlabeled chemicals); that variant collapsed precision on NCBI-disease (F1 0.427) and was discarded.
+
+### Seed variation
+We retrained v2 with the same data and settings using 4 more seeds (1, 2, 3, 4), chosen before training. All 5 runs (with the released seed 13) are reported, none dropped. Numbers are test entity F1 from the training script's own evaluation: same seqeval metric, but a different input path from the pipeline-based table above, which is why seed 13 shows 0.870 on NCBI-disease here and 0.878 there.
+
+| Test set | Mean ± SD | Range |
+|---|---|---|
+| BC5CDR | 0.889 ± 0.002 | 0.887 to 0.891 |
+| NCBI-disease | 0.872 ± 0.002 | 0.870 to 0.875 |
+
+The released checkpoint is typical, not a lucky seed. These intervals cover training randomness only, not uncertainty from the small test sets (NCBI-disease test has 100 abstracts). Per-seed values: `seed_results.json`.
 
 | Runtime check (ONNX via onnxruntime, CPU) | BC5CDR F1 | NCBI-disease F1 | ms/sentence | Size |
 |---|---|---|---|---|
@@ -91,7 +101,7 @@ These scores are not directly comparable to published BC5CDR or NCBI-disease num
 - Trained on PubMed abstracts; expect lower accuracy on clinical notes, full text, patents, or social media.
 - Boundary conventions follow BC5CDR and NCBI-disease, which differ in places (for example disease classes and modifiers); composite and discontinuous mentions are handled imperfectly.
 - Not validated for clinical or diagnostic use. Do not use it to make medical decisions.
-- One run, one seed, no confidence intervals.
+- Seed variation measured with 5 seeds (above); v1 was a single seed, and no test-set bootstrap intervals are given.
 
 ## Data and licensing
 Model weights: Apache-2.0. Base model: MIT (see `NOTICE`). Training data: (1) BioCreative V CDR corpus (Li et al., 2016, Database baw068): the distributors do not state an explicit license on the BioCreative page or the public GitHub mirror ("freely available for the research community"); BigBio lists it as Public Domain Mark 1.0. (2) NCBI Disease corpus (Dogan et al., 2014): distributed by NCBI under its public domain notice. If you have strict compliance needs, review the corpus terms yourself.

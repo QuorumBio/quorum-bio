@@ -25,6 +25,7 @@ Last updated: 2026-11-18 (evening session)
 | BC5CDR (Chemical, Disease; 1,500 PubMed abstracts) | biocreative.org CDR track; github.com/JHnlp/BioCreative-V-CDR-Corpus | Public Domain Mark 1.0 (per BigBio dataset metadata; confirm on the original site before release) | 2026-11-17 (secondary source only) | NER train/val/test |
 | NCBI-disease (793 abstracts, Disease) | ncbi.nlm.nih.gov/CBBresearch/Dogan/DISEASE | CC0 1.0 per BigBio loader; NCBI public domain notice on HF card | 2026-11-17 (secondary source) | NER train/val/test |
 | JNLPBA / GENIA 3.02 (DNA, RNA, protein, cell line, cell type) | geniaproject.org shared task | CC BY 3.0 annotations; abstracts under NLM PubMed terms. Must ship the GENIA license text + attribution "Corpus annotations (c) GENIA Project" | 2026-11-17 | optional, with attribution in NOTICE |
+| UniProtKB/Swiss-Prot reviewed (release 2026_04) | rest.uniprot.org; uniprot.org/help/license | CC BY 4.0 (redistribution and derivatives allowed with attribution; changes must be indicated) | 2026-11-17, release number confirmed 2026-11-19 | loc model train/dev/test; republished as dataset quorumbio/swissprot-localization-signalpeptide with attribution |
 | BC2GM (gene mentions) | biocreative.org BioCreative II | NO KNOWN LICENSE (HF/TFDS list none) | not verified | SKIP until a license is confirmed |
 
 ## Eval results
@@ -59,9 +60,13 @@ Last updated: 2026-11-18 (evening session)
 
 - 2026-11-19 15:40: seed results. NER v2 test F1 over 5 seeds (13,1,2,3,4): BC5CDR mean 0.8889, sd 0.0017, range 0.8868-0.8914; NCBI-disease mean 0.8723, sd 0.0023, range 0.8697-0.8750. Loc 150M seed 1 finished (results in loc/models/seeds/run1_150m_s1). Loc seed 2 was STOPPED by me at 15:40: epoch 1 took 1023 min instead of ~40 because the GPU was shared with Mischa's games/apps, and it was slowing his PC. No partial checkpoint. Lesson: long GPU jobs only when the PC is idle (ask Mischa for a window); check nvidia-smi for other GPU apps before starting.
 
+- 2026-11-19: NER card updated on HF (commit 4684bc7): "Seed variation" section with all 5 seeds + seed_results.json; corrected the old claim that v1->v2 BC5CDR drop was "within one-seed noise" (0.896 single seed vs 0.889 +/- 0.002 over 5 seeds: small but likely real). Template release_pack2.py patched via ner/scripts/add_seed_section.py.
+- 2026-11-19: PUBLISHED dataset https://huggingface.co/datasets/quorumbio/swissprot-localization-signalpeptide (Mischa's idea; CC BY 4.0 with UniProt attribution and changes indicated). Exact loc train/validation/test split as parquet, with accession, sequence, length, organism_id, locations, multi-hot labels, SP flag + end, and MMseqs2 cluster_id; card covers the method, counts and limitations (missing location != negative). Built by loc/scripts/build_dataset.py -> loc/dataset (gitignored data). Checked: no accession or cluster shared between splits; loads with datasets. Loc model card now links it (commit 71f92aa).
+
 ## Download metrics
 - 2026-11-17: 0 downloads (just released). Check via model_info(...).downloads in DAILY step 2. Never self-download.
 - 2026-11-18 ~20:45 CST (HF API model_info, all-time count as reported by HF): biomed-ner-chem-disease 34 downloads, 1 like; esm2-localization-signalpeptide 0 downloads, 0 likes (released ~6h earlier). Spaces biomed-ner-demo and protein-localization-demo: 0 likes each.
+- 2026-11-19 ~15:50 CST: biomed-ner-chem-disease 44 downloads, 1 like.
 
 ## Actions log
 - 2026-11-17: prepared data, trained run1 (test F1 0.896), baseline, ONNX, packaged and uploaded model + static Space. accounts created (Proton, HF, GitHub). GPU verified. CUDA torch venv built. Repo layout created.
@@ -74,5 +79,5 @@ Last updated: 2026-11-18 (evening session)
 ## Next best action
 1. Rerun loc seed 2 only when Mischa says the PC is free (~100 min): `venv/Scripts/python.exe -u loc/scripts/train_loc.py --base facebook/esm2_t30_150M_UR50D --out loc/models/seeds/run1_150m_s2 --epochs 2 --seed 2`. (Or publish with 2 loc seeds and say so.) Then (logs/seeds.txt RUN_END): run `venv/Scripts/python.exe docs/seed_summary.py`, add a "Seed variation" section (mean, sd, range, n seeds) to both cards (ner release_pack2 template + loc release_loc.py template), regenerate SHA256SUMS, upload README + SHA256SUMS only, commit + push to GitHub.
 2. Then the weak loc classes (Golgi, Lysosome/Vacuole, Peroxisome): try class-weighted or focal BCE, choose on dev macro AP, compare against the seed spread from step 1. Do not call a change an improvement unless it is bigger than the seed sd.
-3. Candidate (Mischa's idea, 2026-11-18): publish the homology-partitioned Swiss-Prot localization + signal peptide split as an HF dataset (quorumbio/...). Good fit: UniProt CC BY 4.0 allows redistribution with attribution, it is reusable as a benchmark, it is cheap (data already built), and it links to the model. Needs: CC BY 4.0 + UniProt attribution, a card with the split method (MMseqs2 30%, ECO:0000269 only), the UniProt release/date, and the class counts. Skip a NER dataset: BC5CDR/NCBI are already on HF (BigBio) and the BC5CDR license is unclear.
+3. DONE 2026-11-19 (see log): publish the homology-partitioned Swiss-Prot localization + signal peptide split as an HF dataset (quorumbio/...). Good fit: UniProt CC BY 4.0 allows redistribution with attribution, it is reusable as a benchmark, it is cheap (data already built), and it links to the model. Needs: CC BY 4.0 + UniProt attribution, a card with the split method (MMseqs2 30%, ECO:0000269 only), the UniProt release/date, and the class counts. Skip a NER dataset: BC5CDR/NCBI are already on HF (BigBio) and the BC5CDR license is unclear.
 4. Later: a short paper-style write-up in docs/ covering both models.
