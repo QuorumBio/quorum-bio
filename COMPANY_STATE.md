@@ -1,7 +1,7 @@
 # COMPANY_STATE (single source of memory; update every session)
 
 Lab: Quorum Bio. HF org/user: quorumbio. GitHub: QuorumBio.
-Last updated: 2026-11-17
+Last updated: 2026-11-18 (evening session)
 
 ## Environment
 - Work dir: C:\QuorumBio (Windows PC). Python venv: C:\QuorumBio\venv (torch 2.14.1+cu130, CUDA True, RTX 3060 12 GB).
@@ -9,6 +9,7 @@ Last updated: 2026-11-17
 - Run jobs by writing a .bat in this folder and double-clicking it in File Explorer (computer use is click-only there). Logs go to logs\.
 - Cloud workspace cannot reach huggingface.co (allowlist). The PC can. All HF uploads run from the PC.
 - Cloud workspace GitHub proxy acts as the owner's personal account (mishalide). Never push from the cloud workspace. Push from the PC with the QuorumBio token.
+- 2026-11-18 evening: session ran as Claude Code directly on the Windows PC (Git Bash + venv). From there HF API, GitHub and the GPU are reachable directly, so no .bat double-click is needed. Gotcha: a bare `cat > file` with no heredoc waits on stdin and hangs the shell.
 - Credentials are NOT in this repo. Kept in the cloud workspace CREDENTIALS.md and the user's password manager. HF_TOKEN must be set in the PC environment for uploads.
 
 ## Budget
@@ -50,9 +51,15 @@ Last updated: 2026-11-17
 - 2026-11-18: user reported HF shows 34 downloads on the NER model (screenshot). Cannot verify from sandbox; HF counts bots/mirrors. Never self-download. User offered rewards at 100 (new harness) and 1k (PC with GPU slot); declined any count inflation.
 - Next: write loc release (export 150M to a loadable HF format or custom code + ONNX, card with per-class F1/AP and honest rare-class warning, LICENSE Apache-2.0, NOTICE crediting ESM-2 MIT and UniProt CC BY 4.0, SHA256SUMS, static or free demo, training scripts); push to GitHub via run_push2.bat; run_upload scripts pattern as for NER.
 - 2026-11-18: wrote loc release pipeline (loc/scripts/release_loc.py, upload_loc.py, quorum_loc.py, loc/space static demo) and launched run_loc_release.bat (also pushes code to GitHub). Handoff prompt in NEXT_SESSION_PROMPT.md.
+- 2026-11-18 15:54: loc release DONE. Model quorumbio/esm2-localization-signalpeptide and static Space quorumbio/protein-localization-demo uploaded; ONNX fp32 591.7 MB (parity 9e-6) and int8 149.9 MB (decision agreement 99.9% on 150 seqs, max prob diff 0.10); Space verified working in browser. GitHub pushed (b4035ba). Pending: relabel Space example button (local edit done, not uploaded).
+
+- 2026-11-18 evening: verified loc release with metadata only (no file downloads). Every LFS sha256 on the hub matches loc/release/SHA256SUMS. Every non-LFS file matches local by git blob id. GitHub HEAD = b4035ba. Both Spaces RUNNING. Did NOT run in-browser inference again: the Space fetches our model file and that may count as a self-download (the earlier session had already tested it).
+- 2026-11-18 evening: fix 3b done. Card usage example now has the comment "Example input only: a serum albumin-like sequence, not a verified UniProt entry" (also in release_loc.py template); SHA256SUMS regenerated; model commit c40a455. Space index.html relabeled ("Example: serum albumin-like sequence"), Space commit 3def0a7; live page checked.
+- 2026-11-18 evening: picked the next work with the five criteria. Choice: multi-seed runs for CIs on both released models (improves and documents what we already have, $0 on the local GPU, reuses existing scripts; demand and distribution are neutral). Next after that: the weak loc classes. run_seeds.sh: NER v2 seeds 1-4 (~5 min each) and loc 150M seeds 1-2 (~100 min each), same settings as the released runs. Seeds were fixed in advance and every run is reported. Released checkpoints (seed 13) unchanged. Aggregate with docs/seed_summary.py -> docs/seed_summary.json; log in logs/seeds.txt.
 
 ## Download metrics
 - 2026-11-17: 0 downloads (just released). Check via model_info(...).downloads in DAILY step 2. Never self-download.
+- 2026-11-18 ~20:45 CST (HF API model_info, all-time count as reported by HF): biomed-ner-chem-disease 34 downloads, 1 like; esm2-localization-signalpeptide 0 downloads, 0 likes (released ~6h earlier). Spaces biomed-ner-demo and protein-localization-demo: 0 likes each.
 
 ## Actions log
 - 2026-11-17: prepared data, trained run1 (test F1 0.896), baseline, ONNX, packaged and uploaded model + static Space. accounts created (Proton, HF, GitHub). GPU verified. CUDA torch venv built. Repo layout created.
@@ -63,4 +70,6 @@ Last updated: 2026-11-17
 - (resolved 2026-11-17) HF token verified from the PC: user quorumbio, role write. Token is in C:\QuorumBio\.env (gitignored); scripts load it from there.
 
 ## Next best action
-Get the code onto GitHub (run_push.bat), then start family 2 prep: signal peptide + localization (Swiss-Prot, ESM-2), license-check UniProt (CC BY 4.0) and plan a homology-partitioned split (MMseqs2/CD-HIT clustering). Also consider adding NCBI-disease (public domain) to NER training as run2 to improve Disease, and a multilingual variant.
+1. When run_seeds.sh finishes (logs/seeds.txt RUN_END): run `venv/Scripts/python.exe docs/seed_summary.py`, add a "Seed variation" section (mean, sd, range, n seeds) to both cards (ner release_pack2 template + loc release_loc.py template), regenerate SHA256SUMS, upload README + SHA256SUMS only, commit + push to GitHub.
+2. Then the weak loc classes (Golgi, Lysosome/Vacuole, Peroxisome): try class-weighted or focal BCE, choose on dev macro AP, compare against the seed spread from step 1. Do not call a change an improvement unless it is bigger than the seed sd.
+3. Later: a short paper-style write-up in docs/ covering both models.
