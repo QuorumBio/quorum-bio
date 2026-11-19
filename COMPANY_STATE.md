@@ -63,10 +63,14 @@ Last updated: 2026-11-18 (evening session)
 - 2026-11-19: NER card updated on HF (commit 4684bc7): "Seed variation" section with all 5 seeds + seed_results.json; corrected the old claim that v1->v2 BC5CDR drop was "within one-seed noise" (0.896 single seed vs 0.889 +/- 0.002 over 5 seeds: small but likely real). Template release_pack2.py patched via ner/scripts/add_seed_section.py.
 - 2026-11-19: PUBLISHED dataset https://huggingface.co/datasets/quorumbio/swissprot-localization-signalpeptide (Mischa's idea; CC BY 4.0 with UniProt attribution and changes indicated). Exact loc train/validation/test split as parquet, with accession, sequence, length, organism_id, locations, multi-hot labels, SP flag + end, and MMseqs2 cluster_id; card covers the method, counts and limitations (missing location != negative). Built by loc/scripts/build_dataset.py -> loc/dataset (parquet files, about 10 MB, are also in the GitHub repo with the attribution README next to them; fine under CC BY 4.0). Checked: no accession or cluster shared between splits; loads with datasets. Loc model card now links it (commit 71f92aa).
 
+- 2026-11-19 17:43: loc seed 2 rerun finished on an idle GPU (107 min; epoch 1 55 min, GPU at 83-84 C). Loc 150M over 3 seeds (13,1,2): macro AUROC 0.927 +/- 0.001, macro F1 0.645 +/- 0.009, SP AUROC 0.993 +/- 0.001, SP MCC 0.956 +/- 0.000; rare-class F1 Golgi 0.376 +/- 0.030, Lys/Vac 0.354 +/- 0.010, Peroxisome 0.337 +/- 0.139 (range 0.178-0.432; the released seed 13 is the best, and the card says so). Card updated (commit 17d263b) with seed section + seed_results.json via loc/scripts/add_seed_section.py (template patched too). Dataset viewer is live.
+- Implication for the weak-class work: rare-class F1 is threshold-noisy; use AP (sd ~0.01-0.05) as the main metric for the class-balancing experiment, with 3 seeds per variant.
+
 ## Download metrics
 - 2026-11-17: 0 downloads (just released). Check via model_info(...).downloads in DAILY step 2. Never self-download.
 - 2026-11-18 ~20:45 CST (HF API model_info, all-time count as reported by HF): biomed-ner-chem-disease 34 downloads, 1 like; esm2-localization-signalpeptide 0 downloads, 0 likes (released ~6h earlier). Spaces biomed-ner-demo and protein-localization-demo: 0 likes each.
 - 2026-11-19 ~15:50 CST: biomed-ner-chem-disease 44 downloads, 1 like.
+- 2026-11-19 ~17:50 CST: NER 44 / 1 like; esm2-localization-signalpeptide 18 / 0; dataset swissprot-localization-signalpeptide 0 / 0 (published ~2 h earlier).
 
 ## Actions log
 - 2026-11-17: prepared data, trained run1 (test F1 0.896), baseline, ONNX, packaged and uploaded model + static Space. accounts created (Proton, HF, GitHub). GPU verified. CUDA torch venv built. Repo layout created.
@@ -77,7 +81,6 @@ Last updated: 2026-11-18 (evening session)
 - (resolved 2026-11-17) HF token verified from the PC: user quorumbio, role write. Token is in C:\QuorumBio\.env (gitignored); scripts load it from there.
 
 ## Next best action
-1. Rerun loc seed 2 only when Mischa says the PC is free (~100 min): `venv/Scripts/python.exe -u loc/scripts/train_loc.py --base facebook/esm2_t30_150M_UR50D --out loc/models/seeds/run1_150m_s2 --epochs 2 --seed 2`. (Or publish with 2 loc seeds and say so.) Then (logs/seeds.txt RUN_END): run `venv/Scripts/python.exe docs/seed_summary.py`, add a "Seed variation" section (mean, sd, range, n seeds) to both cards (ner release_pack2 template + loc release_loc.py template), regenerate SHA256SUMS, upload README + SHA256SUMS only, commit + push to GitHub.
-2. Then the weak loc classes (Golgi, Lysosome/Vacuole, Peroxisome): try class-weighted or focal BCE, choose on dev macro AP, compare against the seed spread from step 1. Do not call a change an improvement unless it is bigger than the seed sd.
-3. DONE 2026-11-19 (see log): publish the homology-partitioned Swiss-Prot localization + signal peptide split as an HF dataset (quorumbio/...). Good fit: UniProt CC BY 4.0 allows redistribution with attribution, it is reusable as a benchmark, it is cheap (data already built), and it links to the model. Needs: CC BY 4.0 + UniProt attribution, a card with the split method (MMseqs2 30%, ECO:0000269 only), the UniProt release/date, and the class counts. Skip a NER dataset: BC5CDR/NCBI are already on HF (BigBio) and the BC5CDR license is unclear.
-4. Later: a short paper-style write-up in docs/ covering both models.
+1. Weak loc classes (Golgi, Lysosome/Vacuole, Peroxisome): try class-weighted (pos_weight) or focal BCE; select on dev macro AP; 3 seeds per variant; only call it better if the rare-class AP gain beats the seed sd (~0.01 Golgi/Lys, ~0.05 Perox). Run GPU jobs only when Mischa says the PC is free (~2 h per seed with 150M; consider 35M for quick screening first).
+2. A short paper-style write-up in docs/ covering both models + the dataset.
+3. Keep logging downloads (NER, loc, dataset).
