@@ -2,7 +2,7 @@
 # Overnight: finish the 35M rare-class screen (dev-only), pick the winner on dev with a pre-set rule,
 # then train the winner on 150M with seeds 13, 1, 2 (test scored once per run) for comparison with the 3-seed baseline.
 cd "$(dirname "$0")"
-export PATH="/usr/bin:$PATH"; PY=venv/Scripts/python.exe; LOG=logs/rare_overnight.txt
+PY=venv/Scripts/python.exe; LOG=logs/rare_overnight.txt
 echo "start $(date -Is)" >> $LOG
 for seed in 13 1; do
   for v in "A:" "B:--pw_clip 100" "C:--loss focal" "D:--pool attn"; do
