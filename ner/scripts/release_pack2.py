@@ -80,6 +80,18 @@ We retrained v2 with the same data and settings using 4 more seeds (1, 2, 3, 4),
 
 The released checkpoint is typical, not a lucky seed. These intervals cover training randomness only, not uncertainty from the small test sets (NCBI-disease test has 100 abstracts). Per-seed values: `seed_results.json`.
 
+### Test-set uncertainty
+The seed variation above covers training randomness only. To show how much the test sets limit precision, we bootstrapped whole test abstracts, with 2000 resamples, for the released checkpoint on the pipeline path of the main table. 95% percentile intervals for entity F1:
+
+| Test set | F1 | 95% interval |
+|---|---|---|
+| BC5CDR (500 abstracts), all types | 0.889 | 0.879 to 0.898 |
+| BC5CDR, Chemical | 0.922 | 0.909 to 0.934 |
+| BC5CDR, Disease | 0.850 | 0.836 to 0.863 |
+| NCBI-disease (100 abstracts), Disease | 0.878 | 0.851 to 0.904 |
+
+v1 vs v2 on BC5CDR, paired on the same resampled abstracts: v2 minus v1 F1 = -0.0069 (95% interval -0.0121 to -0.0020). v2 scored lower in 99.5% of resamples, so the drop is small but consistent. Details: `bootstrap_ci.json`; script: `training/bootstrap_ner.py`.
+
 | Runtime check (ONNX via onnxruntime, CPU) | BC5CDR F1 | NCBI-disease F1 | ms/sentence | Size |
 |---|---|---|---|---|
 | fp32 | {f3(O['fp32']['f1'])} | {f3(O['fp32']['ncbi_disease_disease_only']['f1'])} | {O['fp32']['ms_per_sentence']} | {O['files']['fp32']['mb']} MB |
@@ -101,7 +113,7 @@ These scores are not directly comparable to published BC5CDR or NCBI-disease num
 - Trained on PubMed abstracts; expect lower accuracy on clinical notes, full text, patents, or social media.
 - Boundary conventions follow BC5CDR and NCBI-disease, which differ in places (for example disease classes and modifiers); composite and discontinuous mentions are handled imperfectly.
 - Not validated for clinical or diagnostic use. Do not use it to make medical decisions.
-- Seed variation measured with 5 seeds (above); v1 was a single seed, and no test-set bootstrap intervals are given.
+- Seed variation measured with 5 seeds (above); v1 was a single seed. Test-set bootstrap intervals are above; the NCBI-disease test set is small (100 abstracts).
 
 ## Data and licensing
 Model weights: Apache-2.0. Base model: MIT (see `NOTICE`). Training data: (1) BioCreative V CDR corpus (Li et al., 2016, Database baw068): the distributors do not state an explicit license on the BioCreative page or the public GitHub mirror ("freely available for the research community"); BigBio lists it as Public Domain Mark 1.0. (2) NCBI Disease corpus (Dogan et al., 2014): distributed by NCBI under its public domain notice. If you have strict compliance needs, review the corpus terms yourself.

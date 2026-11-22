@@ -46,6 +46,7 @@ Observations:
 - Adding NCBI-disease costs a small but consistent amount on BC5CDR. v1 scored 0.896 on one seed, and v2 averages 0.889 with SD 0.002, so the drop is probably real. In exchange, NCBI-disease F1 rises by about 0.14.
 - run2b's precision on NCBI-disease collapses (F1 0.427). Without O labels, the NCBI sentences give the model no negative signal. We discarded it.
 - The released seed is typical, not a lucky draw.
+- Test-set uncertainty, from 2,000 bootstrap resamples of whole abstracts with 95% intervals: BC5CDR F1 is 0.889 (0.879 to 0.898) and NCBI-disease F1 is 0.878 (0.851 to 0.904). Both are several times wider than the seed SD. We also ran a paired bootstrap of v2 against v1 on the same resampled BC5CDR abstracts. It gives −0.007 F1 (−0.012 to −0.002), and v2 is lower in 99.5% of resamples, so the drop holds up (`ner/scripts/bootstrap_ner.py`).
 
 ### 2.4 Comparison with an existing model
 We ran `d4data/biomedical-ner-all` (66.4M parameters, 84 clinical entity types) through the same pipeline and scorer, mapping its labels to ours by hand. Strict map: BC5CDR F1 0.479, NCBI-disease 0.377. Generous map (Sign_symptom also counted as Disease): 0.533 and 0.329. This is an in-domain vs out-of-domain comparison. Our model was trained on these corpora, and d4data's was not. It says nothing about general quality. d4data is also smaller, ran faster in our GPU test (13.7 s vs 17.2 s for 4,821 sentences), and covers many more entity types.
@@ -160,7 +161,7 @@ We verified the hub copies against local checksums using metadata only. We do no
 
 ## 5. Limitations
 - **No benchmark parity.** Our BC5CDR and NCBI-disease scores use our own tokenization and sentence splitting, and our localization split differs from DeepLoc 2.0 (Thumuluri et al., 2022) and SignalP 6.0 (Teufel et al., 2022) in data, partitions and labels. We have not run those tools on our test set, so we make no claim about how we rank against them.
-- **Uncertainty is partial.** Seed SDs come from 5 (NER) and 3 (localization) seeds and capture training randomness only. For localization we also give cluster-bootstrap test intervals (3.3), which are much wider for the rare classes. For NER we have no test bootstrap yet. The NCBI-disease test set has 100 abstracts, so its sampling error is likely several times the seed SD.
+- **Uncertainty is partial.** Seed SDs come from 5 (NER) and 3 (localization) seeds and capture training randomness only. We also give test-set bootstrap intervals: by abstract for NER (2.3) and by sequence cluster for localization (3.3). They are wider than the seed SDs, most of all for NCBI-disease (100 abstracts) and the rare localization classes.
 - **Label noise.** NCBI sentences carry unlabeled chemicals (labeled O). Localization negatives are incomplete annotations. Signal peptide labels include sequence-predicted SIGNAL features.
 - **Coverage.** NER covers English PubMed abstracts and two entity types, with no normalization to identifiers. Localization covers 10 coarse compartments, with no topology, cleavage site or isoform specificity, and is biased toward well-studied organisms.
 - **Licensing.** BC5CDR has no explicit license text from its distributors (see 2.1).

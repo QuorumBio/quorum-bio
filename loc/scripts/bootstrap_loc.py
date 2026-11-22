@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np, pandas as pd, torch
 from sklearn.metrics import roc_auc_score, average_precision_score, f1_score, matthews_corrcoef
 root = Path(__file__).resolve().parents[1]; rel = root / "release"
-sys.path.insert(0, str(rel)); from quorum_loc import load, trunc
+sys.dont_write_bytecode = True; sys.path.insert(0, str(rel)); from quorum_loc import load, trunc
 B, SEED = 2000, 13
 m = load(rel, device="cuda"); C = m.meta["classes"]; thr = np.array(m.meta["thresholds"]); spt = m.meta["sp_threshold"]
 te = [json.loads(l) for l in open(root / "data" / "test.jsonl")]

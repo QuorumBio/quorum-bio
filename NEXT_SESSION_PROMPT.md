@@ -9,11 +9,10 @@ Environment: if you are Claude Code running on the Windows PC (Git Bash/PowerShe
 State at handoff (2026-11-22 morning; verify in COMPANY_STATE.md):
 - Live: quorumbio/biomed-ner-chem-disease (62 downloads, 1 like), quorumbio/esm2-localization-signalpeptide (52), dataset quorumbio/swissprot-localization-signalpeptide (57), static Spaces quorumbio/biomed-ner-demo and quorumbio/protein-localization-demo (both RUNNING).
 - Rare-class screen finished 2026-11-22 14:09 with a NULL result (no variant beat the baseline; no 150M runs; test untouched). Results in docs/report.md 3.4, COMPANY_STATE.md and loc/models/screen/pick.json.
-- docs/report.md is the draft technical report, with a short AI-use disclosure at the end (Mischa agreed). Byline is "Quorum Bio" until Mischa picks the public name form.
+- docs/report.md is the draft technical report, with a short AI-use disclosure at the end (Mischa agreed). Byline stays "Quorum Bio" (Mischa: keep it off for now). Both model cards now have test-set bootstrap intervals (2026-11-22).
 - GPU etiquette: the PC is Mischa's gaming PC. Before any long GPU job, ask whether it is free, check nvidia-smi, and ask Mischa to pause Windows Update.
 
 Next best actions, in order:
 1. Log download/like counts (models + dataset) in COMPANY_STATE.md.
-2. If Mischa has chosen a byline name, set it in docs/report.md ("the lab founder" -> "the author") and consider linking the report from both model cards.
-3. Pick the next work with the five criteria (see COMPANY_STATE.md Next best action). Ask Mischa before any GPU job.
-4. Update COMPANY_STATE.md and NEEDS_HUMAN.md, and rewrite this prompt.
+2. Pick the next work with the five criteria (see COMPANY_STATE.md Next best action). Ask Mischa before any GPU job.
+3. Update COMPANY_STATE.md and NEEDS_HUMAN.md, and rewrite this prompt.

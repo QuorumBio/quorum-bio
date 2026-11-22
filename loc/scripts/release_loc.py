@@ -123,6 +123,25 @@ We retrained the 150M model with the same data and settings using 2 more seeds (
 
 Rare-class F1 depends on a threshold picked on few validation positives, so it is much less stable than AUROC or AP. The released checkpoint's Peroxisome F1 (0.432) is the best of the 3 seeds, so the per-class table above overstates what a typical run gets for peroxisome (mean 0.337). 3 seeds is a small sample, so treat the SD as rough. It covers training randomness only, not test-set sampling. Per-class values for all classes: `seed_results.json`.
 
+### Test-set uncertainty
+The seed variation above covers training randomness only. To show how much the small test set limits precision, we bootstrapped the released checkpoint's test predictions. We resampled the 1475 MMseqs2 test clusters rather than single proteins, because similar proteins are not independent. We used 2000 resamples, with the validation-chosen thresholds held fixed. 95% percentile intervals:
+
+| Metric | Point | 95% interval |
+|---|---|---|
+| Location macro AUROC | 0.926 | 0.914 to 0.935 |
+| Location macro AP | 0.674 | 0.642 to 0.708 |
+| Location macro F1 | 0.650 | 0.614 to 0.680 |
+| AP, Golgi apparatus | 0.381 | 0.243 to 0.513 |
+| AP, Lysosome/Vacuole | 0.367 | 0.215 to 0.520 |
+| AP, Peroxisome | 0.405 | 0.240 to 0.588 |
+| F1, Golgi apparatus | 0.342 | 0.234 to 0.447 |
+| F1, Lysosome/Vacuole | 0.361 | 0.218 to 0.484 |
+| F1, Peroxisome | 0.432 | 0.219 to 0.613 |
+| Signal peptide AUROC | 0.994 | 0.988 to 0.998 |
+| Signal peptide MCC | 0.956 | 0.935 to 0.972 |
+
+For the rare classes, this test-set uncertainty (roughly ±0.1 to 0.2 AP) is far larger than the seed SD. Treat their per-class numbers as rough magnitudes. All classes: `bootstrap_ci.json`; script: `training/bootstrap_loc.py`.
+
 These numbers are not directly comparable to published tools such as SignalP or DeepLoc, which use different datasets, splits and label definitions. We have not run those tools on this test set.
 
 ## Data
@@ -137,7 +156,7 @@ UniProtKB/Swiss-Prot reviewed entries (CC BY 4.0), retrieved 2026-11-17. Kept pr
 - Only 10 coarse locations; no sub-compartments, no membrane topology, no signal peptide cleavage site.
 - Isoform and condition-specific locations are merged.
 - Mostly well-studied proteins, so expect lower accuracy on proteins unlike Swiss-Prot.
-- Research use only. Seed variation measured with only 3 seeds; no test-set bootstrap intervals.
+- Research use only. Seed variation measured with only 3 seeds; test-set intervals (cluster bootstrap) are above.
 
 ## Files
 `SHA256SUMS` lists checksums for every file.
