@@ -104,6 +104,20 @@ Seed variation (150M, seeds 13, 1, 2, test, mean ± SD):
 | AP Golgi / Lys-Vac / Peroxisome | 0.375 ± 0.011 / 0.356 ± 0.010 / 0.356 ± 0.054 | |
 | F1 Golgi / Lys-Vac / Peroxisome | 0.376 ± 0.030 / 0.354 ± 0.010 / 0.337 ± 0.139 | Peroxisome 0.178 to 0.432 |
 
+**Test-set sampling uncertainty.** We bootstrapped the released checkpoint's test predictions. We resampled the 1,475 MMseqs2 test clusters rather than single proteins, because similar proteins within a cluster are not independent. We used 2,000 resamples with the dev-chosen thresholds held fixed (`loc/scripts/bootstrap_loc.py`, `bootstrap_ci.json`). Re-running inference reproduced the published test numbers to 4 decimal places. The resulting 95% intervals:
+
+| Metric | Point | 95% CI |
+|---|---|---|
+| Location macro AUROC | 0.926 | 0.914 to 0.935 |
+| Location macro AP | 0.674 | 0.642 to 0.708 |
+| Location macro F1 | 0.650 | 0.614 to 0.680 |
+| Rare-class AP (mean of 3) | 0.384 | 0.299 to 0.477 |
+| AP Golgi / Lys-Vac / Peroxisome | 0.381 / 0.367 / 0.405 | 0.24 to 0.51 / 0.22 to 0.52 / 0.24 to 0.59 |
+| Signal peptide AUROC | 0.994 | 0.988 to 0.998 |
+| Signal peptide MCC | 0.956 | 0.935 to 0.972 |
+
+For the rare classes, the uncertainty from the small test set (about ±0.1 to 0.2 AP) is roughly ten times larger than the seed-to-seed SD (about 0.01 to 0.05). Treat the per-class rare numbers as rough magnitudes. Comparisons between variants should be paired on the same examples, as in the dev screen in 3.4, and not compared across separate intervals.
+
 Two points matter for reading these tables.
 - AUROC looks high for the rare classes (0.88 to 0.92), but AP is the more informative metric there.
 - Rare-class F1 depends on a threshold tuned on few dev positives (62 for peroxisome), so it swings widely between seeds. The released checkpoint's peroxisome F1 of 0.432 is the best of the 3 seeds, and the typical value is about 0.34. The model card says so.
@@ -146,7 +160,7 @@ We verified the hub copies against local checksums using metadata only. We do no
 
 ## 5. Limitations
 - **No benchmark parity.** Our BC5CDR and NCBI-disease scores use our own tokenization and sentence splitting, and our localization split differs from DeepLoc 2.0 (Thumuluri et al., 2022) and SignalP 6.0 (Teufel et al., 2022) in data, partitions and labels. We have not run those tools on our test set, so we make no claim about how we rank against them.
-- **Uncertainty is partial.** Seed SDs come from 5 (NER) and 3 (localization) seeds and capture training randomness only. We report no bootstrap intervals over test examples. The NCBI-disease test set has 100 abstracts and the peroxisome test class has 35 proteins, so sampling error there is substantial.
+- **Uncertainty is partial.** Seed SDs come from 5 (NER) and 3 (localization) seeds and capture training randomness only. For localization we also give cluster-bootstrap test intervals (3.3), which are much wider for the rare classes. For NER we have no test bootstrap yet. The NCBI-disease test set has 100 abstracts, so its sampling error is likely several times the seed SD.
 - **Label noise.** NCBI sentences carry unlabeled chemicals (labeled O). Localization negatives are incomplete annotations. Signal peptide labels include sequence-predicted SIGNAL features.
 - **Coverage.** NER covers English PubMed abstracts and two entity types, with no normalization to identifiers. Localization covers 10 coarse compartments, with no topology, cleavage site or isoform specificity, and is biased toward well-studied organisms.
 - **Licensing.** BC5CDR has no explicit license text from its distributors (see 2.1).
