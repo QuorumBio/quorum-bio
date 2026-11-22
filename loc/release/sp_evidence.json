@@ -1,0 +1,51 @@
+{
+  "definition": "Signal peptide labels by UniProt evidence code, and released-model test performance per evidence group.\nNeeds loc/data/raw/sprot.tsv.gz and loc/models/run1_150m/test_preds.npz (from bootstrap_loc.py). Writes loc/release/sp_evidence.json.\nGroups: exp = ECO:0000269 (experimental), seq = ECO:0000255 (sequence-model evidence, typically prediction tools), other = any other code or none.",
+  "label_counts": {
+    "train": {
+      "seq": 4171,
+      "exp": 1028,
+      "other": 437
+    },
+    "dev": {
+      "seq": 282,
+      "exp": 78,
+      "other": 25
+    },
+    "test": {
+      "seq": 340,
+      "exp": 77,
+      "other": 33
+    }
+  },
+  "test_by_group": {
+    "exp": {
+      "n_pos": 77,
+      "recall": 0.948051948051948,
+      "recall_95ci_wilson": [
+        0.8739053481109362,
+        0.9796156113950607
+      ],
+      "auroc_vs_all_test_negatives": 0.9946874440511769
+    },
+    "seq": {
+      "n_pos": 340,
+      "recall": 0.95,
+      "recall_95ci_wilson": [
+        0.9213932084534197,
+        0.968551463744476
+      ],
+      "auroc_vs_all_test_negatives": 0.9953847233485122
+    },
+    "other": {
+      "n_pos": 33,
+      "recall": 0.9090909090909091,
+      "recall_95ci_wilson": [
+        0.7642705646564897,
+        0.968596628950737
+      ],
+      "auroc_vs_all_test_negatives": 0.9734727979690865
+    }
+  },
+  "test_false_positive_rate": 0.0042417815482502655,
+  "threshold": 0.9
+}

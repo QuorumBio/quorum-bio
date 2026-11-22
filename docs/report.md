@@ -60,7 +60,7 @@ We provide ONNX fp32 (435.8 MB) and dynamic int8 (109.7 MB) exports. fp32 vs PyT
 Source: UniProtKB/Swiss-Prot reviewed entries, release 2026_04 (576,073 entries), CC BY 4.0. Steps:
 1. Keep sequences of length 30 to 4,000 that use only the 20 standard amino acids.
 2. Keep only subcellular locations with evidence code ECO:0000269 (experimental), mapped by name prefix to 10 classes: nucleus, cytoplasm, extracellular, mitochondrion, cell membrane, ER, plastid, Golgi, lysosome/vacuole, peroxisome. Drop entries with no mapped experimental location. This leaves 37,733 proteins.
-3. Signal peptide label: presence of a UniProt SIGNAL feature, at any evidence level.
+3. Signal peptide label: presence of a UniProt SIGNAL feature, at any evidence level. Most are predicted: 74% of positives carry ECO:0000255 (sequence-model evidence, typically from tools such as SignalP) and 18% are experimental (ECO:0000269).
 4. Cluster with MMseqs2 (30% identity, coverage 0.8), giving 20,269 clusters. Assign whole clusters 80/10/10 to train/dev/test.
 5. Search dev and test against train at 30% identity and remove every hit: 1,328 dev and 1,478 test proteins removed.
 
@@ -118,6 +118,8 @@ Seed variation (150M, seeds 13, 1, 2, test, mean ± SD):
 | Signal peptide MCC | 0.956 | 0.935 to 0.972 |
 
 For the rare classes, the uncertainty from the small test set (about ±0.1 to 0.2 AP) is roughly ten times larger than the seed-to-seed SD (about 0.01 to 0.05). Treat the per-class rare numbers as rough magnitudes. Comparisons between variants should be paired on the same examples, as in the dev screen in 3.4, and not compared across separate intervals.
+
+**Signal peptide labels by evidence.** On the 77 test signal peptides with experimental evidence, recall is 0.948 (95% Wilson interval 0.87 to 0.98) and AUROC is 0.995 against all test negatives. On the 340 sequence-analysis positives the values are 0.950 and 0.995. So the high signal peptide score does not merely reflect agreement with predicted labels, though the experimental subset is small (`loc/scripts/sp_evidence.py`).
 
 Two points matter for reading these tables.
 - AUROC looks high for the rare classes (0.88 to 0.92), but AP is the more informative metric there.

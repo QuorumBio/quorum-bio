@@ -42,7 +42,45 @@ language: en
 library_name: transformers
 base_model: {BASE}
 pipeline_tag: token-classification
-tags: [biomedical, ner, chemical, disease, bc5cdr, ncbi-disease, onnx]
+tags: [biomedical, biomedical-ner, ner, chemical, disease, bc5cdr, ncbi-disease, pubmed, onnx, transformers.js]
+datasets: [bigbio/bc5cdr, ncbi/ncbi_disease]
+model-index:
+- name: biomed-ner-chem-disease
+  results:
+  - task:
+      type: token-classification
+      name: Named entity recognition
+    dataset:
+      name: BC5CDR (Chemical + Disease)
+      type: bigbio/bc5cdr
+      split: test
+    metrics:
+    - type: f1
+      value: {f3(ab['f1'])}
+      name: Entity F1 (seqeval, own word tokenization; not comparable to published BC5CDR numbers)
+    - type: precision
+      value: {f3(ab['precision'])}
+      name: Entity precision
+    - type: recall
+      value: {f3(ab['recall'])}
+      name: Entity recall
+  - task:
+      type: token-classification
+      name: Named entity recognition
+    dataset:
+      name: NCBI-disease (Disease)
+      type: ncbi/ncbi_disease
+      split: test
+    metrics:
+    - type: f1
+      value: {f3(an['f1'])}
+      name: Entity F1 (seqeval, own word tokenization; not comparable to published numbers)
+    - type: precision
+      value: {f3(an['precision'])}
+      name: Entity precision
+    - type: recall
+      value: {f3(an['recall'])}
+      name: Entity recall
 ---
 # Biomedical NER: Chemical and Disease (BiomedBERT-base, Apache-2.0)
 

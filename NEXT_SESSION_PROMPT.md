@@ -12,7 +12,10 @@ State at handoff (2026-11-22 morning; verify in COMPANY_STATE.md):
 - docs/report.md is the draft technical report, with a short AI-use disclosure at the end (Mischa agreed). Byline stays "Quorum Bio" (Mischa: keep it off for now). Both model cards now have test-set bootstrap intervals (2026-11-22).
 - GPU etiquette: the PC is Mischa's gaming PC. Before any long GPU job, ask whether it is free, check nvidia-smi, and ask Mischa to pause Windows Update.
 
+Also done 2026-11-22: card metadata (datasets, model-index, tags), HF collection, SP-evidence analysis on the loc card, outreach drafts (outreach/drafts.md). Pending with Mischa: 3 repo renames for search (NEEDS_HUMAN 5), posting outreach (NEEDS_HUMAN 6).
+
 Next best actions, in order:
 1. Log download/like counts (models + dataset) in COMPANY_STATE.md.
-2. Pick the next work with the five criteria (see COMPANY_STATE.md Next best action). Ask Mischa before any GPU job.
-3. Update COMPANY_STATE.md and NEEDS_HUMAN.md, and rewrite this prompt.
+2. If Mischa approved the renames, do them and update all references (list in COMPANY_STATE.md).
+3. Third model: multi-type biomedical NER with per-type heads (plan in COMPANY_STATE.md Next best action). Verify and record licenses first; ask Mischa before GPU.
+4. Update COMPANY_STATE.md and NEEDS_HUMAN.md, and rewrite this prompt.

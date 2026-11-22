@@ -74,7 +74,7 @@ Checked when building: no accession and no cluster appears in more than one spli
 ## Limitations
 - **A missing location is not a negative.** It means there is no experimental annotation for that compartment, not that the protein is absent from it. Treat negatives as noisy.
 - The class mapping is a simple name-prefix rule set; sub-compartments (for example nuclear envelope, mitochondrial membrane) fold into their parent class, and other compartments (for example cytoskeleton, endosome) are ignored.
-- Signal peptide labels include SIGNAL features that UniProt annotates from sequence analysis, not only from experiments.
+- Signal peptide labels include SIGNAL features that UniProt annotates from sequence analysis, not only from experiments. Across all splits, 4793 of 6471 positives (74%) carry ECO:0000255 (sequence-model evidence, typically from prediction tools such as SignalP), 1183 (18%) carry ECO:0000269 (experimental) and 495 have other or no evidence codes. To evaluate on experimentally supported signal peptides only, look up the evidence in UniProt by accession.
 - Isoform-specific locations are merged per protein (one row per accession, canonical sequence).
 - Swiss-Prot is biased toward well-studied organisms (human, mouse, yeast, Arabidopsis, E. coli).
 - Not comparable to DeepLoc or SignalP benchmark splits; those use different data, partitions and labels.
