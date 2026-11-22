@@ -1,7 +1,7 @@
 # COMPANY_STATE (single source of memory; update every session)
 
 Lab: Quorum Bio. HF org/user: quorumbio. GitHub: QuorumBio.
-Last updated: 2026-11-18 (evening session)
+Last updated: 2026-11-22
 
 ## Environment
 - Work dir: C:\QuorumBio (Windows PC). Python venv: C:\QuorumBio\venv (torch 2.14.1+cu130, CUDA True, RTX 3060 12 GB).
@@ -70,11 +70,15 @@ Last updated: 2026-11-18 (evening session)
 
 - 2026-11-19 ~21:30: Mischa gave the GPU overnight (and asked to keep bandwidth under 300 GB; training uses ~none). Launched run_rare_overnight.sh DETACHED (Start-Process bash, hidden) so Claude Code's low-memory reaper cannot kill it. Steps: finish the 35M screen (skips done runs) -> loc/scripts/pick_rare.py picks on DEV only with a rule fixed beforehand (best mean dev rare AP over seeds 13,1; must beat A by >= 0.02 and lose <= 0.01 dev macro AP) -> if a winner exists, 150M seeds 13,1,2 with test scored once each, into loc/models/rare150/s*. Log: logs/rare_overnight.txt; pick: loc/models/screen/pick.json. Compare the 150M results against the existing 3-seed baseline (loc/release/seed_results.json); if better beyond the seed sd, consider a v1.1 release (needs quorum_loc.py + ONNX export support for --pool attn if D wins).
 
+- 2026-11-22: overnight run of 11-19 died at 22:38 CST: Windows Update (TrustedInstaller) rebooted the PC during B seed 13 epoch 2; PC then off until 11-21. Only A_s13 finished; no pick.json, no rare150. Mischa approved the GPU now (2026-11-22 ~09:45) and is pausing Windows Update for a week. Relaunched run_rare_overnight.sh detached at 09:46:55 (skips A_s13; 7 screen runs ~13 min/epoch, then 150M x3 if a variant passes the pre-set rule). Lesson: before long jobs, ask Mischa to pause Windows Update; scripts already resume by skipping finished runs.
+- 2026-11-22: wrote docs/report.md (paper-style technical report: both models + dataset, seeds, comparison, limitations, references). Section 3.4 has a <!-- RARE_SCREEN_RESULTS --> marker to fill when the screen ends.
+
 ## Download metrics
 - 2026-11-17: 0 downloads (just released). Check via model_info(...).downloads in DAILY step 2. Never self-download.
 - 2026-11-18 ~20:45 CST (HF API model_info, all-time count as reported by HF): biomed-ner-chem-disease 34 downloads, 1 like; esm2-localization-signalpeptide 0 downloads, 0 likes (released ~6h earlier). Spaces biomed-ner-demo and protein-localization-demo: 0 likes each.
 - 2026-11-19 ~15:50 CST: biomed-ner-chem-disease 44 downloads, 1 like.
 - 2026-11-19 ~17:50 CST: NER 44 / 1 like; esm2-localization-signalpeptide 18 / 0; dataset swissprot-localization-signalpeptide 0 / 0 (published ~2 h earlier).
+- 2026-11-22 ~09:40 CST (HF API, downloads = 30d = all-time so far): NER 62 / 1 like; loc model 52 / 0; dataset 57 / 0. Both Spaces RUNNING, 0 likes.
 
 ## Actions log
 - 2026-11-17: prepared data, trained run1 (test F1 0.896), baseline, ONNX, packaged and uploaded model + static Space. accounts created (Proton, HF, GitHub). GPU verified. CUDA torch venv built. Repo layout created.
@@ -85,6 +89,7 @@ Last updated: 2026-11-18 (evening session)
 - (resolved 2026-11-17) HF token verified from the PC: user quorumbio, role write. Token is in C:\QuorumBio\.env (gitignored); scripts load it from there.
 
 ## Next best action
-1. Weak loc classes (Golgi, Lysosome/Vacuole, Peroxisome): try class-weighted (pos_weight) or focal BCE; select on dev macro AP; 3 seeds per variant; only call it better if the rare-class AP gain beats the seed sd (~0.01 Golgi/Lys, ~0.05 Perox). Run GPU jobs only when Mischa says the PC is free (~2 h per seed with 150M; consider 35M for quick screening first).
-2. A short paper-style write-up in docs/ covering both models + the dataset.
+1. Rare-class screen (running since 2026-11-22 09:46, log logs/rare_overnight.txt; wait for RUN_END). Then read loc/models/screen/pick.json; if a winner trained on 150M (loc/models/rare150/s13,s1,s2), compare to loc/release/seed_results.json on rare-class AP, macro AP and SP; better only if the gain beats the seed sd. Report every result (also null) in docs/report.md section 3.4 (marker RARE_SCREEN_RESULTS) and here. If clearly better: plan v1.1 (quorum_loc.py + ONNX export must support the new head, e.g. --pool attn).
+2. After the screen: push docs/report.md to GitHub (already committed if this session pushed); consider linking the report from both model cards.
 3. Keep logging downloads (NER, loc, dataset).
+4. Ask Mischa before any further GPU job, and to pause Windows Update for long runs.
