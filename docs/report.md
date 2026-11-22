@@ -5,7 +5,7 @@ Code: https://github.com/QuorumBio/quorum-bio. Models and data: https://huggingf
 
 ## Abstract
 
-We release two fine-tuned models and one dataset, all under permissive licenses, with training scripts, checksums and ONNX exports. (1) `quorumbio/biomed-ner-chem-disease` is a BiomedBERT-base token classifier for Chemical and Disease mentions, trained on BC5CDR and NCBI-disease. Over 5 training seeds its test entity F1 is 0.889 ± 0.002 on BC5CDR and 0.872 ± 0.002 on NCBI-disease. (2) `quorumbio/esm2-localization-signalpeptide` is an ESM-2 150M model that predicts 10 subcellular locations (multi-label) and the presence of an N-terminal signal peptide. On a test set with no protein at 30% or more identity to any training protein, over 3 seeds, it reaches location macro AUROC 0.927 ± 0.001, macro F1 0.645 ± 0.009, and signal peptide AUROC 0.993 ± 0.001 with MCC 0.956. It is weak on three rare compartments (Golgi, lysosome/vacuole, peroxisome; AP 0.36 to 0.38). (3) `quorumbio/swissprot-localization-signalpeptide` is the exact train/validation/test split used for (2), 34,927 Swiss-Prot proteins with experimentally supported locations, published under CC BY 4.0. Everything was trained on one consumer GPU (RTX 3060, 12 GB) at no compute cost. None of our numbers are directly comparable to published benchmark results, because splits, tokenization and label definitions differ. Section 5 explains this.
+We release two fine-tuned models and one dataset, all under permissive licenses, with training scripts, checksums and ONNX exports. (1) `quorumbio/biomed-ner-chem-disease` is a BiomedBERT-base token classifier for Chemical and Disease mentions, trained on BC5CDR and NCBI-disease. Over 5 training seeds its test entity F1 is 0.889 ± 0.002 on BC5CDR and 0.872 ± 0.002 on NCBI-disease. (2) `quorumbio/esm2-localization-signalpeptide` is an ESM-2 150M model that predicts 10 subcellular locations (multi-label) and the presence of an N-terminal signal peptide. On a test set with no protein at 30% or more identity to any training protein, over 3 seeds, it reaches location macro AUROC 0.927 ± 0.001, macro F1 0.645 ± 0.009, and signal peptide AUROC 0.993 ± 0.001 with MCC 0.956. It is weak on three rare compartments (Golgi, lysosome/vacuole, peroxisome; AP 0.36 to 0.38), and a pre-registered screen of three fixes (stronger class weights, focal loss, attention pooling) did not help. (3) `quorumbio/swissprot-localization-signalpeptide` is the exact train/validation/test split used for (2), 34,927 Swiss-Prot proteins with experimentally supported locations, published under CC BY 4.0. Everything was trained on one consumer GPU (RTX 3060, 12 GB) at no compute cost. None of our numbers are directly comparable to published benchmark results, because splits, tokenization and label definitions differ. Section 5 explains this.
 
 ## 1. Motivation and scope
 
@@ -108,7 +108,7 @@ Two points matter for reading these tables.
 - AUROC looks high for the rare classes (0.88 to 0.92), but AP is the more informative metric there.
 - Rare-class F1 depends on a threshold tuned on few dev positives (62 for peroxisome), so it swings widely between seeds. The released checkpoint's peroxisome F1 of 0.432 is the best of the 3 seeds, and the typical value is about 0.34. The model card says so.
 
-### 3.4 Rare-class experiments (in progress)
+### 3.4 Rare-class experiments (null result)
 To try to improve the three rare classes, we fixed a screen in advance on the 35M model (2 epochs, dev only, test not scored). It has four variants, each with seeds 13 and 1:
 - A: baseline, positive weight capped at 10.
 - B: positive weight cap raised to 100.
@@ -117,9 +117,16 @@ To try to improve the three rare classes, we fixed a screen in advance on the 35
 
 The selection rule was also fixed before any result was seen. The winner is the variant with the best mean dev rare-class AP, and it advances only if it beats A by at least 0.02 rare AP while losing no more than 0.01 dev macro AP. A winner would be retrained on 150M with seeds 13, 1 and 2 and compared against the 3-seed baseline above. We would call it better only if the rare-class AP gain exceeds the seed SD.
 
-Status on 2026-11-22: baseline A at seed 13 reached dev macro AP 0.631 and dev rare-class AP 0.339. An earlier attempt was cut off by a shared-GPU slowdown and later by an OS restart. The rest of the screen is running. All results will be reported here, including a null result.
+**Result (2026-11-22): null. No variant beat the baseline.** Dev set, ESM-2 35M, 2 epochs, mean of seeds 13 and 1:
 
-<!-- RARE_SCREEN_RESULTS -->
+| Variant | Dev rare-class AP (mean of Golgi, Lys/Vac, Peroxisome) | Per seed (13, 1) | Dev macro AP |
+|---|---|---|---|
+| A baseline (pos-weight cap 10) | **0.339** | 0.339, 0.339 | **0.622** |
+| B pos-weight cap 100 | 0.312 | 0.316, 0.308 | 0.607 |
+| C focal loss | 0.221 | 0.243, 0.199 | 0.590 |
+| D attention pooling | 0.255 | 0.305, 0.204 | 0.596 |
+
+All three variants scored lower than the baseline on both rare-class AP and macro AP, so under the pre-set rule nothing advanced to 150M and the test set was not touched. The released model stays as it is. Caveats: we ran each variant at a single setting (for example one focal-loss gamma and one learning rate) on the small backbone for 2 epochs. The screen therefore rules out these variants as drop-in changes to our recipe, not the ideas in general. Attention pooling also varied widely between seeds (0.305 vs 0.204) and might need longer training. Raw results: `loc/models/screen/*/dev_results.json` and `loc/models/screen/pick.json`.
 
 ### 3.5 Deployment
 - ONNX fp32 (591.7 MB): max probability difference vs PyTorch 9.2e-6 on 150 test sequences, with 100% decision agreement.
@@ -152,6 +159,9 @@ All steps run on one RTX 3060 (12 GB) under Windows with PyTorch 2.14 / CUDA 13.
 - Seed aggregation: `docs/seed_summary.py`.
 
 MMseqs2 on Windows: the `easy-*` workflows segfaulted for us. Use `createdb`/`cluster`/`createtsv`/`search`/`convertalis` instead.
+
+## AI use
+Data processing, model training, evaluation and the first draft of this report were carried out by an AI agent (Claude, Anthropic) working in Claude Code on the lab founder's computer. The founder set up the environment, approved all compute, made release decisions and reviewed the results. All numbers come from the scripts and result files in the repository.
 
 ## References
 - Doğan RI, Leaman R, Lu Z. NCBI disease corpus: a resource for disease name recognition and concept normalization. J Biomed Inform 47:1-10 (2014).
