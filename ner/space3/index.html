@@ -17,7 +17,8 @@ mark small{font-size:.65em;margin-left:.3em;opacity:.7}
 <div class="qb"><img src="logo.svg" alt=""><a href="https://huggingface.co/quorumbio">Quorum Bio</a></div>
 <h1>Biomedical NER: six entity types</h1>
 <p class="legend"><mark class="Gene">Gene</mark><mark class="Chemical">Chemical</mark><mark class="Disease">Disease</mark><mark class="Species">Species</mark><mark class="Variant">Variant</mark><mark class="CellLine">CellLine</mark></p>
-<p class="note">Runs entirely in your browser with an int8 ONNX model (first load downloads about 110 MB). English only. Research demo, not for clinical decisions. Model: <a href="https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species">quorumbio/biomedical-ner-gene-chemical-disease-species</a> (Apache-2.0).</p>
+<p class="note">Runs entirely in your browser with an int8 ONNX model; the first load downloads it once. English only. Research demo, not for clinical decisions. Models (Apache-2.0): <a href="https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species-small">small</a> and <a href="https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species">full</a>.</p>
+<p><label>Model: <select id="m"><option value="quorumbio/biomedical-ner-gene-chemical-disease-species-small">Small (67 MB, faster)</option><option value="quorumbio/biomedical-ner-gene-chemical-disease-species">Full (110 MB, more accurate)</option></select></label></p>
 <textarea id="t" rows="6">The BRCA1 c.68_69delAG mutation was found in HeLa cells and in mice with breast cancer that were treated with tamoxifen.</textarea>
 <button id="go" disabled>Loading model...</button>
 <div id="out"></div>
@@ -27,10 +28,16 @@ import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 let ner;
-try {
-  ner = await pipeline("token-classification", "quorumbio/biomedical-ner-gene-chemical-disease-species", { dtype: "q8" });
-  $("go").disabled = false; $("go").textContent = "Tag entities";
-} catch (e) { $("go").textContent = "Model failed to load"; $("out").textContent = String(e); }
+async function load(id) {
+  ner = null; $("go").disabled = true; $("m").disabled = true; $("go").textContent = "Loading model...";
+  try {
+    ner = await pipeline("token-classification", id, { dtype: "q8" });
+    $("go").disabled = false; $("go").textContent = "Tag entities";
+  } catch (e) { $("go").textContent = "Model failed to load"; $("out").textContent = String(e); }
+  $("m").disabled = false;
+}
+$("m").addEventListener("change", () => load($("m").value));
+await load($("m").value);
 async function run() {
   const text = $("t").value, lower = text.toLowerCase();
   $("go").disabled = true;
