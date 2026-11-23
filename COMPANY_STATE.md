@@ -43,6 +43,27 @@ Older log entries below use the old names; HF redirects them.
 All references updated (cards, model-index names, templates, Spaces, GitHub README, report, quorum_loc docstring, upload scripts); SHA256SUMS regenerated; HF commits loc 986eb0b, NER 8540ebf, dataset 34fe5cf, Spaces 2d8a195 / e98dc1d. Old URLs verified to redirect (page + README resolve), collection followed automatically.
 Search rank after rename (HF list_models search, sorted by downloads): "biomedical ner" #4 of 50 (was absent); "ner chemical disease" #1 of 3; "subcellular localization" #1 of 7 (was absent); "signal peptide" #2 of 6; "protein localization" #2 of 10. Dataset search: "subcellular localization" #6 of 6, "signal peptide" #3 of 3.
 
+## Brand (2026-11-22, logo approved by Mischa after two tweaks)
+- brand/: mark.svg/png (square, teal #0F5F57, white Q, three mint #7FE0C8 dots = a quorum of cells), avatar-1024.png, mark-rounded.svg, wordmark(-dark).svg/png (transparent PNGs). brand/README.md lists them.
+- Live: both Spaces have a Quorum Bio header (logo.svg), teal buttons/bars, footer linking the profile and collection (Space commits bbec1d9, 99261a0; both RUNNING). GitHub README banner (picture element, dark variant). New GitHub profile repo QuorumBio/QuorumBio (ef58341).
+- Avatars on HF and GitHub must be set by Mischa (no API). NEEDS_HUMAN 7.
+
+## NER v3 (6 types) - in progress 2026-11-22
+- Data: ner/scripts/prepare_data3.py -> ner/data3/ (gitignored). Corpora: BC5CDR (Chemical, Disease), NCBI-disease (Disease), NLM-Gene (Gene; Gene/GENERIF/STARGENE -> Gene, Domain/Other -> X ignored per guidelines), BioRED (Chemical, Disease, Gene, Species, Variant, CellLine). LINNAEUS skipped (no license).
+- Cross-corpus de-duplication by PMID (test > dev > train): many shared abstracts (e.g. 53 BC5CDR-test abstracts in BioRED train). Removed: bc5cdr train 20 / dev 11, ncbi train 4, biored train 121 / dev 22. Test sets unchanged. NLM-Gene dev = 50 PMIDs from its train list, random.Random(13). Leak assert passes.
+- NLM-Gene: 103 annotation-text mismatches are Greek letters transliterated in the annotation text (PPARγ annotated as 'PPARg'); offsets are correct. 166 overlapping-entity token conflicts skipped (longer span kept).
+- Method: ner/scripts/train3.py, standard 13-label token-classification head with partial-label loss (an O word in corpus c may be any label of a type c does not annotate); --naive = plain O. Scoring per corpus only on its types. Checkpoint on mean validation F1 over 4 corpora.
+- Pre-registered: v3a (partial-label, seed 13) is the release candidate; v3n (naive) is the comparison; choose between them on validation only. run_v3.sh launched 20:11 CST (about 1.6 min per epoch), log logs/v3.txt.
+- v3a done (epoch 5 chosen on validation, 9.2 min). Test (train3 internal path): BC5CDR 0.889, NCBI 0.867, NLM-Gene 0.933, BioRED 0.898 (Gene 0.911, Chemical 0.886, Disease 0.859, Species 0.966, Variant 0.914, CellLine 0.917 n=50).
+- PRE-REGISTERED before v3n finished (2026-11-22 ~20:22): after choosing the objective on validation, retrain it with seeds 1, 2, 3, 4 (same settings) and report all 5 runs; the released checkpoint stays seed 13 unless it fails.
+- v3n (naive objective) done: best mean val F1 0.8685 vs v3a 0.8941 -> v3a chosen ON VALIDATION (as pre-registered). v3n test: BC5CDR 0.883, NCBI 0.883 (better than v3a's 0.867; report it), NLM-Gene 0.922, BioRED 0.799 (v3a 0.898). The naive objective mostly loses recall on BioRED (types unlabeled in other corpora are taught as O).
+- run_v3b.sh launched 20:32 CST: eval_v3 (pipeline path + v2 comparison), onnx_export3 -> ner/release3/onnx, bootstrap_ner3, then seeds 1-4 (weights deleted, results kept). Log logs/v3b.txt.
+- v3 follow-up DONE 21:26 CST. Pipeline path (card table): BC5CDR 0.888 [0.879, 0.898], NCBI 0.865 [0.840, 0.888], NLM-Gene 0.933 [0.920, 0.944], BioRED 0.898 [0.881, 0.916]. Paired v3-v2: BC5CDR -0.001 [-0.006, +0.005]; NCBI -0.013 [-0.032, +0.005] (v3 worse in 92% of resamples). BioRED Chem+Dis: v3 0.871, v2 0.852 (in-domain for v3 only).
+  Seeds (13,1,2,3,4; internal path): BC5CDR 0.889 ± 0.002, NCBI 0.873 ± 0.004, NLM-Gene 0.930 ± 0.002, BioRED 0.901 ± 0.002. ONNX int8 109.7 MB, 16.5 ms/sentence CPU, F1 within 0.0015 of fp32; fp32 parity 7.2e-5, argmax agreement 1.0.
+  Spot check: card example sentence all 6 types correct; missed 'V600E' as Variant in another sentence (variant coverage limited).
+- Release folder ner/release3 (24 files, gitignored), card built by ner/scripts/release_pack3.py from result files. Demo Space files ner/space3. Upload script ner/scripts/upload_v3.py (new repo quorumbio/biomedical-ner-gene-chemical-disease-species + Space quorumbio/biomedical-ner-6-types-demo + collection). WAITING FOR MISCHA'S RELEASE APPROVAL (the report says the founder makes release decisions).
+- Release plan if good: NEW repo (keep biomedical-ner-chemical-disease as is), name chosen for search, e.g. quorumbio/biomedical-ner-gene-chemical-disease-species. Cite BioRED (Luo et al. 2022) and NLM-Gene (Islamaj et al. 2021) in card.
+
 ## Releases
 - 2026-11-17: https://huggingface.co/quorumbio/biomed-ner-chem-disease (Apache-2.0; weights, ONNX fp32 + int8 as onnx/model_quantized.onnx, LICENSE, NOTICE, SHA256SUMS, training scripts, provenance). Parity fp32 ONNX vs torch: max logit diff 5.6e-5, argmax agreement 1.0. ONNX test F1 fp32 0.8960 / int8 0.8940 (CPU 24.5 / 13.7 ms per sentence).
 - Baseline d4data/biomedical-ner-all on same BC5CDR test path: F1 0.479 (strict label map) / 0.533 (generous). Reported in the card with in-domain vs out-of-domain caveat. Our model is larger (108.9M vs 66.4M params) and slightly slower on GPU; do not claim speed or size advantage.
@@ -113,6 +134,6 @@ Search rank after rename (HF list_models search, sorted by downloads): "biomedic
 
 ## Next best action
 1. Renames DONE 2026-11-22. Logo drafts in brand/ await Mischa's review (NEEDS_HUMAN 7); do not upload before approval.
-2. Third model (recommended): multi-type biomedical NER (Chemical, Disease, Gene, Species; maybe Variant, CellLine) from BC5CDR + NCBI-disease + NLM-Gene + LINNAEUS + BioRED, with per-type BIO heads so each corpus only supervises the types it annotates (fixes the run2b failure: O labels kept per annotated type). BiomedBERT-base, ~10-20 min per run on the 3060. First: verify licenses on source pages and record them in the provenance table; then data prep; ask Mischa before GPU.
+2. Third model TRAINED, awaiting release approval (see NER v3 section): multi-type biomedical NER (Chemical, Disease, Gene, Species; maybe Variant, CellLine) from BC5CDR + NCBI-disease + NLM-Gene + LINNAEUS + BioRED, with per-type BIO heads so each corpus only supervises the types it annotates (fixes the run2b failure: O labels kept per annotated type). BiomedBERT-base, ~10-20 min per run on the 3060. First: verify licenses on source pages and record them in the provenance table; then data prep; ask Mischa before GPU.
 3. Signal peptide cleavage site: lower priority (only ~18% experimental labels; niche small).
 4. Keep logging downloads; check search rank after any rename.
