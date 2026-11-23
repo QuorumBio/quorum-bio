@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300">
+  <title>Quorum Bio</title>
+  <g transform="translate(40,30) scale(0.4688)">
+  <rect width="512" height="512" rx="96" fill="#0F5F57"/>
+  <circle cx="244" cy="244" r="132" fill="none" stroke="#FFFFFF" stroke-width="46"/>
+  <path d="M322 310 L398 366" stroke="#FFFFFF" stroke-width="46" stroke-linecap="round"/>
+  <g fill="#7FE0C8"><circle cx="244" cy="208" r="23"/><circle cx="213" cy="262" r="23"/><circle cx="275" cy="262" r="23"/></g>
+  </g>
+  <text x="330" y="178" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="112" font-weight="700" fill="#0F5F57" letter-spacing="-2">Quorum Bio</text>
+  <text x="334" y="236" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="38" fill="#4A5A58">Small open biology models</text>
+</svg>

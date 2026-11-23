@@ -2,6 +2,8 @@
 title: Protein localization demo
 emoji: 🧬
 sdk: static
+colorFrom: green
+colorTo: gray
 pinned: false
 license: apache-2.0
 short_description: Predict protein location and signal peptide, in-browser

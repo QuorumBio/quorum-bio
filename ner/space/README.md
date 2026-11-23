@@ -1,6 +1,9 @@
 ---
 title: Biomedical NER demo
+emoji: 🔬
 sdk: static
+colorFrom: green
+colorTo: gray
 license: apache-2.0
 short_description: Tag chemicals and diseases in text, in your browser
 ---

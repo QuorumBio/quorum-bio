@@ -1,6 +1,9 @@
-# Quorum Bio
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="brand/wordmark-dark.png">
+  <img alt="Quorum Bio" src="brand/wordmark.png" width="480">
+</picture>
 
-Small open biology models on Hugging Face, with reproducible training.
+Small open biology models on [Hugging Face](https://huggingface.co/quorumbio), with reproducible training and honest model cards.
 
 ## Models
 - [quorumbio/biomedical-ner-chemical-disease](https://huggingface.co/quorumbio/biomedical-ner-chemical-disease): Chemical and Disease NER (BiomedBERT-base fine-tuned on BC5CDR and NCBI-disease), PyTorch and ONNX (fp32, int8). Apache-2.0. [Browser demo](https://huggingface.co/spaces/quorumbio/biomed-ner-demo).

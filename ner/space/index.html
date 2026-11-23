@@ -4,19 +4,22 @@
 <style>
 body{font-family:system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;line-height:1.5;color:#1b1b1f}
 textarea{width:100%;box-sizing:border-box;font:inherit;padding:.6rem;border:1px solid #bbb;border-radius:6px}
-button{font:inherit;padding:.5rem 1.1rem;border:0;border-radius:6px;background:#2d5be3;color:#fff;cursor:pointer;margin:.5rem 0}
+button{font:inherit;padding:.5rem 1.1rem;border:0;border-radius:6px;background:#0F5F57;color:#fff;cursor:pointer;margin:.5rem 0}
 button:disabled{background:#999;cursor:wait}
 #out{border:1px solid #ddd;border-radius:6px;padding:.8rem;min-height:3rem;white-space:pre-wrap}
 mark{padding:.05rem .25rem;border-radius:4px;color:#000}
 mark.Chemical{background:#bfe3ff}mark.Disease{background:#ffd0cc}
 mark small{font-size:.65em;margin-left:.3em;opacity:.7}
 .note{font-size:.9rem;color:#555}
+.qb{display:flex;align-items:center;gap:.5rem;margin:0 0 1rem;font-weight:600}.qb a{color:#0F5F57;text-decoration:none}.qb img{width:28px;height:28px;border-radius:6px}a{color:#0F5F57}.foot{margin-top:2rem;font-size:.85rem;color:#555;border-top:1px solid #e5e7eb;padding-top:.6rem}
 </style></head><body>
+<div class="qb"><img src="logo.svg" alt=""><a href="https://huggingface.co/quorumbio">Quorum Bio</a></div>
 <h1>Biomedical NER: Chemical and Disease</h1>
 <p class="note">Runs entirely in your browser with an int8 ONNX model (first load downloads about 110 MB). English only. Research demo, not for clinical decisions. Model: <a href="https://huggingface.co/quorumbio/biomedical-ner-chemical-disease">quorumbio/biomedical-ner-chemical-disease</a> (Apache-2.0).</p>
 <textarea id="t" rows="6">Lidocaine-induced cardiac asystole developed in a patient with chronic renal failure. Naloxone reverses the antihypertensive effect of clonidine.</textarea>
 <button id="go" disabled>Loading model...</button>
 <div id="out"></div>
+<p class="foot">From <a href="https://huggingface.co/quorumbio">Quorum Bio</a>: small open biology models. All models, demos and data: <a href="https://huggingface.co/collections/quorumbio/quorum-bio-open-biology-models-6b03617169bc86a3fd82656b">collection</a>.</p>
 <script type="module">
 import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers";
 const $ = id => document.getElementById(id);
