@@ -6,16 +6,15 @@ Rules (unchanged): public data only, record each dataset license in COMPANY_STAT
 
 Environment: if you are Claude Code running on the Windows PC (Git Bash/PowerShell in C:\QuorumBio), you can use venv\Scripts\python.exe, the RTX 3060, the HF API (token in .env) and GitHub (GH_TOKEN in .env, push to https://x-access-token:$GH_TOKEN@github.com/QuorumBio/quorum-bio.git) directly; no .bat double-clicking needed. If you are instead in the cloud sandbox, HF/UniProt/GPU work must go through a .bat file double-clicked on Windows (see COMPANY_STATE.md Environment).
 
-State at handoff (2026-11-22 morning; verify in COMPANY_STATE.md):
-- Live: quorumbio/biomed-ner-chem-disease (62 downloads, 1 like), quorumbio/esm2-localization-signalpeptide (52), dataset quorumbio/swissprot-localization-signalpeptide (57), static Spaces quorumbio/biomed-ner-demo and quorumbio/protein-localization-demo (both RUNNING).
-- Rare-class screen finished 2026-11-22 14:09 with a NULL result (no variant beat the baseline; no 150M runs; test untouched). Results in docs/report.md 3.4, COMPANY_STATE.md and loc/models/screen/pick.json.
-- docs/report.md is the draft technical report, with a short AI-use disclosure at the end (Mischa agreed). Byline stays "Quorum Bio" (Mischa: keep it off for now). Both model cards now have test-set bootstrap intervals (2026-11-22).
+State at handoff (2026-11-22 late evening; verify in COMPANY_STATE.md):
+- Live (renamed 2026-11-22; old names redirect): quorumbio/biomedical-ner-chemical-disease (62 downloads, 1 like), quorumbio/esm2-protein-subcellular-localization-signal-peptide (52), dataset quorumbio/swissprot-subcellular-localization-signal-peptide (57), static Spaces quorumbio/biomed-ner-demo and quorumbio/protein-localization-demo (RUNNING, now branded). Collection: quorumbio/quorum-bio-open-biology-models-6b03617169bc86a3fd82656b.
+- Brand: logo approved by Mischa (brand/). Mischa still has to set the HF and GitHub avatars (NEEDS_HUMAN 7). GitHub profile repo QuorumBio/QuorumBio exists.
+- NER v3 (six types, partial-label training) is trained, evaluated (pipeline, ONNX, bootstrap, 5 seeds) and packaged in ner/release3; demo in ner/space3 (tested in headless Edge against a local int8 copy: works). NOT PUBLISHED: waiting for Mischa's release approval (NEEDS_HUMAN 8). If approved: run `venv/Scripts/python.exe ner/scripts/upload_v3.py` (with .env loaded), then verify (model_info, Space RUNNING, collection), update README.md, the GitHub profile README, docs/report.md 2.6 (drop "release pending"), outreach drafts, COMPANY_STATE.
+- docs/report.md has section 2.6 for v3. Byline stays "Quorum Bio" (Mischa: keep it off for now). AI-use note at the end; it says the founder makes release decisions, so keep asking before publishing.
 - GPU etiquette: the PC is Mischa's gaming PC. Before any long GPU job, ask whether it is free, check nvidia-smi, and ask Mischa to pause Windows Update.
 
-Also done 2026-11-22: card metadata (datasets, model-index, tags), HF collection, SP-evidence analysis on the loc card, outreach drafts (outreach/drafts.md). Pending with Mischa: 3 repo renames for search (NEEDS_HUMAN 5), posting outreach (NEEDS_HUMAN 6).
-
 Next best actions, in order:
-1. Log download/like counts (models + dataset) in COMPANY_STATE.md.
-2. If Mischa approved the renames, do them and update all references (list in COMPANY_STATE.md).
-3. Third model: multi-type biomedical NER with per-type heads (plan in COMPANY_STATE.md Next best action). Verify and record licenses first; ask Mischa before GPU.
+1. Log download/like counts (first counts after the renames).
+2. If Mischa approved v3, publish it (see above). Otherwise keep it packaged.
+3. Ideas after v3: a v3 note in outreach drafts; SP cleavage site (low priority); consider a smaller/faster NER variant (e.g. distilled) only if there is demand.
 4. Update COMPANY_STATE.md and NEEDS_HUMAN.md, and rewrite this prompt.

@@ -123,6 +123,7 @@ Search rank after rename (HF list_models search, sorted by downloads): "biomedic
 - 2026-11-19 ~15:50 CST: biomed-ner-chem-disease 44 downloads, 1 like.
 - 2026-11-19 ~17:50 CST: NER 44 / 1 like; esm2-localization-signalpeptide 18 / 0; dataset swissprot-localization-signalpeptide 0 / 0 (published ~2 h earlier).
 - 2026-11-22 ~09:40 CST (HF API, downloads = 30d = all-time so far): NER 62 / 1 like; loc model 52 / 0; dataset 57 / 0. Both Spaces RUNNING, 0 likes.
+- 2026-11-22 ~22:00 CST: unchanged (NER 62 / 1, loc 52 / 0, dataset 57 / 0); HF counts update about daily. First count after the renames is tomorrow.
 
 ## Actions log
 - 2026-11-17: prepared data, trained run1 (test F1 0.896), baseline, ONNX, packaged and uploaded model + static Space. accounts created (Proton, HF, GitHub). GPU verified. CUDA torch venv built. Repo layout created.

@@ -54,6 +54,26 @@ We ran `d4data/biomedical-ner-all` (66.4M parameters, 84 clinical entity types) 
 ### 2.5 Deployment
 We provide ONNX fp32 (435.8 MB) and dynamic int8 (109.7 MB) exports. fp32 vs PyTorch: max absolute logit difference 3.4e-5, token argmax agreement 1.0 on 300 sentences. On CPU, int8 runs at 13.6 ms per sentence vs 24.5 ms for fp32, and F1 changes from 0.889 to 0.886 (BC5CDR) and from 0.878 to 0.879 (NCBI-disease). A static Hugging Face Space (`quorumbio/biomed-ner-demo`) runs the int8 model in the browser with transformers.js.
 
+### 2.6 Six entity types from partially annotated corpora (v3, release pending)
+The v2 experiments show the core difficulty of combining corpora: each one labels only some entity types, so a word tagged O is ambiguous. run2a treats it as a true negative (and teaches the model that NCBI's chemicals are not entities), while run2b drops it (and loses all negative signal). For v3 we add two corpora and four types, and treat O as a partial label.
+
+**Data.** BC5CDR (Chemical, Disease) and NCBI-disease (Disease) as above, plus NLM-Gene (Islamaj et al., 2021; 550 abstracts, Gene; CC0) and BioRED (Luo et al., 2022; 600 abstracts; Chemical, Disease, Gene, Species, Variant, CellLine; US Government work). NLM-Gene's Gene, GENERIF and STARGENE mentions map to Gene; its Domain and Other mentions, which its guidelines exclude from gene annotation, are ignored. We dropped LINNAEUS (species) because its distribution page states no license. The corpora share many abstracts: 53 BC5CDR test abstracts are in BioRED's training set, and BioRED and NLM-Gene share over 100. We kept every test set as published and removed from training and validation every abstract that appears in any test set, and from training every abstract in any validation set (BioRED loses 121 of 400 training abstracts). NLM-Gene has no validation split, so we drew 50 of its training abstracts (seed 13) before training (`ner/scripts/prepare_data3.py`).
+
+**Method.** One standard token-classification head with 13 labels (O plus B/I for six types), so the model works unchanged with `transformers` pipelines, ONNX and transformers.js. Loss: for a word with an entity tag, the usual cross-entropy; for a word tagged O in corpus c, the negative log of the summed probability of O and of every label whose type c does not annotate; X words are ignored. A corpus thus still supplies negatives for its own types, which run2b lacked, without asserting anything about types it never labels, which run2a did. Settings as in 2.2; about 9 minutes per run. Checkpoint: best mean validation F1 over the four corpora; each test set is scored only on its corpus's types.
+
+**Results.** We compared the partial-label objective with the plain one (every O is a negative), choosing between them on validation (mean F1 0.894 vs 0.869). Test F1, pipeline path, 95% bootstrap intervals over abstracts:
+
+| Test set | Types | Partial-label (v3) | Plain objective |
+|---|---|---|---|
+| BC5CDR | Chemical, Disease | 0.888 (0.879 to 0.898) | 0.883 |
+| NCBI-disease | Disease | 0.865 (0.840 to 0.888) | 0.883 |
+| NLM-Gene | Gene | 0.933 (0.920 to 0.944) | 0.922 |
+| BioRED | all six | 0.898 (0.881 to 0.916) | 0.799 |
+
+(Plain-objective numbers are from the training script's evaluation path, which gives v3 0.889, 0.867, 0.933 and 0.898 on the same four sets.) The plain objective loses mostly recall on BioRED, the only corpus annotating all six types, as expected if it learns that unlabeled genes and species in the other corpora are negatives. It did better on NCBI-disease; we do not have an explanation we have tested. BioRED per-type F1 for v3: Species 0.966, CellLine 0.917 (50 mentions), Gene 0.912, Variant 0.912, Chemical 0.883, Disease 0.861. Over 5 pre-registered seeds (13, 1, 2, 3, 4) the SD is 0.002 to 0.004 on every test set.
+
+Against v2 on the same pipeline, paired over resampled abstracts, v3 is unchanged on BC5CDR (−0.001, interval −0.006 to +0.005) and probably slightly worse on NCBI-disease (−0.013, interval −0.032 to +0.005; lower in 92% of resamples). ONNX int8 (109.7 MB) runs at 16.5 ms per sentence on CPU and changes F1 by at most 0.0015; fp32 matches PyTorch to 7e-5 in the logits. We checked the browser demo page by running it in headless Edge against a local copy of the int8 model. In a spot check the model missed the protein variant "V600E", consistent with Variant being learned from 279 BioRED abstracts.
+
 ## 3. Subcellular localization and signal peptide
 
 ### 3.1 Dataset
@@ -165,7 +185,7 @@ We verified the hub copies against local checksums using metadata only. We do no
 - **No benchmark parity.** Our BC5CDR and NCBI-disease scores use our own tokenization and sentence splitting, and our localization split differs from DeepLoc 2.0 (Thumuluri et al., 2022) and SignalP 6.0 (Teufel et al., 2022) in data, partitions and labels. We have not run those tools on our test set, so we make no claim about how we rank against them.
 - **Uncertainty is partial.** Seed SDs come from 5 (NER) and 3 (localization) seeds and capture training randomness only. We also give test-set bootstrap intervals: by abstract for NER (2.3) and by sequence cluster for localization (3.3). They are wider than the seed SDs, most of all for NCBI-disease (100 abstracts) and the rare localization classes.
 - **Label noise.** NCBI sentences carry unlabeled chemicals (labeled O). Localization negatives are incomplete annotations. Signal peptide labels include sequence-predicted SIGNAL features.
-- **Coverage.** NER covers English PubMed abstracts and two entity types, with no normalization to identifiers. Localization covers 10 coarse compartments, with no topology, cleavage site or isoform specificity, and is biased toward well-studied organisms.
+- **Coverage.** NER covers English PubMed abstracts and two (v2) or six (v3) entity types, with no normalization to identifiers; v3's Species, Variant and CellLine come from BioRED alone. Localization covers 10 coarse compartments, with no topology, cleavage site or isoform specificity, and is biased toward well-studied organisms.
 - **Licensing.** BC5CDR has no explicit license text from its distributors (see 2.1).
 - Neither model is validated for clinical, diagnostic or safety-critical use.
 
@@ -184,8 +204,10 @@ Data processing, model training, evaluation and the first draft of this report w
 - Doğan RI, Leaman R, Lu Z. NCBI disease corpus: a resource for disease name recognition and concept normalization. J Biomed Inform 47:1-10 (2014).
 - Gu Y, et al. Domain-specific language model pretraining for biomedical natural language processing. ACM Trans Comput Healthcare 3(1):2 (2021).
 - Li J, et al. BioCreative V CDR task corpus: a resource for chemical disease relation extraction. Database baw068 (2016).
+- Islamaj R, et al. NLM-Gene, a richly annotated gold standard dataset for gene entities that addresses ambiguity and multi-species gene recognition. J Biomed Inform 118:103779 (2021).
 - Lin TY, et al. Focal loss for dense object detection. ICCV (2017).
 - Lin Z, et al. Evolutionary-scale prediction of atomic-level protein structure with a language model. Science 379:1123-1130 (2023).
+- Luo L, et al. BioRED: a rich biomedical relation extraction dataset. Brief Bioinform 23(5):bbac282 (2022).
 - Steinegger M, Söding J. MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets. Nat Biotechnol 35:1026-1028 (2017).
 - Teufel F, et al. SignalP 6.0 predicts all five types of signal peptides using protein language models. Nat Biotechnol 40:1023-1025 (2022).
 - Thumuluri V, et al. DeepLoc 2.0: multi-label subcellular localization prediction using protein language models. Nucleic Acids Res 50(W1):W228-W234 (2022).
