@@ -5,4 +5,4 @@
 5. (2026-11-22) DONE: the 3 renames (Mischa said go ahead). Old names redirect.
 6. (2026-11-22) Outreach drafts are in outreach/drafts.md (not in git). Post any you like from your own accounts; decide whether to include the optional AI-use line.
 7. (2026-11-22) Logo APPROVED and live on both Spaces, the GitHub README and the new GitHub profile page (QuorumBio/QuorumBio). Still needs you: set the profile picture to brand/avatar-1024.png on huggingface.co/settings/profile and github.com/settings/profile (neither site has an API for avatars).
-8. (2026-11-22) Release decision: NER v3 (six types: Gene, Chemical, Disease, Species, Variant, CellLine) is trained and packaged in ner/release3 (card = ner/release3/README.md). Say yes to publish it as a new repo quorumbio/biomedical-ner-gene-chemical-disease-species with a browser demo Space; the current Chemical/Disease model stays as is.
+8. (2026-11-22) DONE: Mischa approved; NER v3 published as quorumbio/biomedical-ner-gene-chemical-disease-species with demo Space quorumbio/biomedical-ner-6-types-demo.

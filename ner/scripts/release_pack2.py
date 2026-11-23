@@ -88,6 +88,8 @@ Token-classification model that tags **Chemical** and **Disease** mentions in En
 
 **Version note.** This is v2 (trained on BC5CDR + NCBI-disease). v1 (BC5CDR only) is kept as the git revision `v1.0` of this repo.
 
+**Need genes, species, variants or cell lines too?** See [quorumbio/biomedical-ner-gene-chemical-disease-species](https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species), which tags six types in one pass and scores about the same as this model on BC5CDR (slightly lower on NCBI-disease).
+
 ## Use
 ```python
 from transformers import pipeline
