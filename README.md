@@ -11,6 +11,8 @@ Small open biology models on [Hugging Face](https://huggingface.co/quorumbio), w
 
 - [quorumbio/biomedical-ner-gene-chemical-disease-species](https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species): one model for six entity types (Gene, Chemical, Disease, Species, Variant, CellLine), trained with a partial-label loss on BC5CDR, NCBI-disease, NLM-Gene and BioRED. PyTorch and ONNX (fp32, int8). Apache-2.0. [Browser demo](https://huggingface.co/spaces/quorumbio/biomedical-ner-6-types-demo).
 
+- [quorumbio/biomedical-ner-gene-chemical-disease-species-small](https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species-small): 6-layer distilled version of the six-type model (66.8 MB int8, about 2x faster, about 0.01 to 0.02 F1 lower). Apache-2.0.
+
 ## Dataset
 - [quorumbio/swissprot-subcellular-localization-signal-peptide](https://huggingface.co/datasets/quorumbio/swissprot-subcellular-localization-signal-peptide): the homology-partitioned (30% identity) Swiss-Prot split used for the localization model. CC BY 4.0.
 

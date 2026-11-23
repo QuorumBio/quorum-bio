@@ -17,7 +17,10 @@ ap.add_argument("--no_test", action="store_true", help="screening: do not score 
 ap.add_argument("--accum", type=int, default=1, help="gradient accumulation steps (effective batch = bs * accum)")
 ap.add_argument("--freeze_layers", type=int, default=0, help="freeze embeddings + the bottom N encoder layers")
 ap.add_argument("--resume", action="store_true", help="resume from <out>/ckpt.pt (saved after every epoch)")
-a = ap.parse_args(); random.seed(a.seed); np.random.seed(a.seed); torch.manual_seed(a.seed)
+ap.add_argument("--mem_fraction", type=float, default=0.0, help="cap this process's GPU memory (fails with OOM instead of spilling into system RAM on Windows)")
+a = ap.parse_args()
+if a.mem_fraction: torch.cuda.set_per_process_memory_fraction(a.mem_fraction)
+random.seed(a.seed); np.random.seed(a.seed); torch.manual_seed(a.seed)
 root = Path(__file__).resolve().parents[1]
 CLASSES = ["Nucleus", "Cytoplasm", "Extracellular", "Mitochondrion", "Cell membrane", "Endoplasmic reticulum", "Plastid", "Golgi apparatus", "Lysosome/Vacuole", "Peroxisome"]
 load = lambda s: [json.loads(l) for l in open(root / "data" / f"{s}.jsonl")]

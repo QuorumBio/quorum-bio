@@ -98,6 +98,8 @@ model-index:
 
 One token-classification model that tags six entity types in English biomedical text in a single pass: **Gene** (genes and gene products), **Chemical**, **Disease** (including phenotypic features, following BioRED), **Species**, **Variant** (sequence variants) and **CellLine**. {PARAMS:.1f}M parameters, fine-tuned from `{BASE}` on four public corpora. ONNX (fp32 and int8) files are included, and the int8 model runs in the browser with transformers.js.
 
+**Need it smaller or faster?** [quorumbio/biomedical-ner-gene-chemical-disease-species-small](https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species-small) is a 6-layer distilled version (66.8 MB int8, about 2x faster on CPU, about 0.01 to 0.02 F1 lower).
+
 Companion to [quorumbio/biomedical-ner-chemical-disease](https://huggingface.co/quorumbio/biomedical-ner-chemical-disease) (Chemical and Disease only). On the same pipeline it scores about the same on BC5CDR and somewhat lower on NCBI-disease, and adds four types; see the comparison below. If you only need chemicals and diseases, compare both on your own text.
 
 ## Use
