@@ -14,6 +14,9 @@ ap.add_argument("--pw_clip", type=float, default=10.0, help="cap on per-class po
 ap.add_argument("--loss", choices=["bce", "focal"], default="bce"); ap.add_argument("--gamma", type=float, default=2.0)
 ap.add_argument("--pool", choices=["mean", "attn"], default="mean", help="location head pooling; attn = light-attention style (softmax-weighted + max)")
 ap.add_argument("--no_test", action="store_true", help="screening: do not score the test set")
+ap.add_argument("--accum", type=int, default=1, help="gradient accumulation steps (effective batch = bs * accum)")
+ap.add_argument("--freeze_layers", type=int, default=0, help="freeze embeddings + the bottom N encoder layers")
+ap.add_argument("--resume", action="store_true", help="resume from <out>/ckpt.pt (saved after every epoch)")
 a = ap.parse_args(); random.seed(a.seed); np.random.seed(a.seed); torch.manual_seed(a.seed)
 root = Path(__file__).resolve().parents[1]
 CLASSES = ["Nucleus", "Cytoplasm", "Extracellular", "Mitochondrion", "Cell membrane", "Endoplasmic reticulum", "Plastid", "Golgi apparatus", "Lysosome/Vacuole", "Peroxisome"]
@@ -22,6 +25,11 @@ tr, dv, te = load("train"), load("dev"), load("test")
 if a.smoke: tr, dv, te = tr[:400], dv[:100], te[:100]
 tok = AutoTokenizer.from_pretrained(a.base); enc = AutoModel.from_pretrained(a.base); enc.gradient_checkpointing_enable()
 H = enc.config.hidden_size
+if a.freeze_layers:
+    for p_ in enc.embeddings.parameters(): p_.requires_grad_(False)
+    for l_ in enc.encoder.layer[:a.freeze_layers]:
+        for p_ in l_.parameters(): p_.requires_grad_(False)
+    enc.enable_input_require_grads()  # keeps gradient checkpointing working when the embeddings are frozen
 class Net(nn.Module):
     def __init__(s):
         super().__init__(); s.enc = enc; s.drop = nn.Dropout(0.1); s.sp = nn.Linear(2 * H, 1)
@@ -49,8 +57,8 @@ def order(data, shuffle):
     chunks = [idx[i:i + a.bs] for i in range(0, len(idx), a.bs)]
     if shuffle: random.shuffle(chunks)
     return chunks
-opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
-steps = a.epochs * len(order(tr, False)); sch = get_linear_schedule_with_warmup(opt, int(0.06 * steps), steps)
+opt = torch.optim.AdamW([p_ for p_ in net.parameters() if p_.requires_grad], lr=a.lr, weight_decay=0.01)
+steps = a.epochs * -(-len(order(tr, False)) // a.accum); sch = get_linear_schedule_with_warmup(opt, int(0.06 * steps), steps)
 pos = np.array([[c in x["locations"] for c in CLASSES] for x in tr]).mean(0); pw = torch.tensor(np.clip((1 - pos) / np.maximum(pos, 1e-3), 1, a.pw_clip), dtype=torch.float, device=dev)
 bs_ = nn.BCEWithLogitsLoss()
 if a.loss == "focal":
@@ -77,20 +85,31 @@ def ys(data): return np.array([[c in x["locations"] for c in CLASSES] for x in d
 def score(data, P, S): 
     Y, YS = ys(data); au = auroc(Y, P); sp_auc = float(roc_auc_score(YS, S)) if 0 < YS.sum() < len(YS) else float("nan")
     return au, sp_auc
-best, best_state, hist = -1, None, []; t0 = time.time(); net.train()
-for ep in range(a.epochs):
-    tot = 0
-    for ch in order(tr, True):
+best, best_state, hist = -1, None, []; t0 = time.time(); net.train(); start_ep = 0
+out = Path(a.out); out.mkdir(parents=True, exist_ok=True); CK = out / "ckpt.pt"
+if a.resume and CK.exists():
+    ck = torch.load(CK, map_location="cpu", weights_only=False)
+    net.load_state_dict(ck["net"]); opt.load_state_dict(ck["opt"]); sch.load_state_dict(ck["sch"]); best, best_state, hist, start_ep = ck["best"], ck["best_state"], ck["hist"], ck["epoch"]
+    random.setstate(ck["py_rng"]); np.random.set_state(ck["np_rng"]); torch.set_rng_state(ck["torch_rng"]); t0 -= hist[-1]["minutes"] * 60 if hist else 0
+    print("RESUMED after epoch", start_ep, flush=True)
+for ep in range(start_ep, a.epochs):
+    tot = 0; chunks = order(tr, True)
+    for k, ch in enumerate(chunks):
         ids, mask, y, s = batch([tr[i] for i in ch])
         with torch.autocast("cuda", dtype=torch.bfloat16): lg, sg = net(ids, mask)
         loss = bl(lg.float(), y) + bs_(sg.float(), s)
-        loss.backward(); torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0); opt.step(); sch.step(); opt.zero_grad(); tot += loss.item()
+        (loss / a.accum).backward(); tot += loss.item()
+        if (k + 1) % a.accum == 0 or k + 1 == len(chunks):
+            torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0); opt.step(); sch.step(); opt.zero_grad()
     P, S = predict(dv); au, sp_auc = score(dv, P, S); sel = float(np.nanmean([np.mean(list(au.values())), sp_auc]))
     dmap, drap, _ = dev_ap(P)
     m = {"epoch": ep + 1, "train_loss": tot, "dev_macro_auroc_loc": float(np.mean(list(au.values()))), "dev_sp_auroc": sp_auc, "dev_macro_ap_loc": dmap, "dev_rare_ap": drap, "select": sel, "minutes": (time.time() - t0) / 60}
     hist.append(m); print(json.dumps(m), flush=True)
     if sel > best: best = sel; best_state = {k: v.detach().cpu().clone() for k, v in net.state_dict().items()}
-net.load_state_dict(best_state)
+    if a.epochs > 1 and ep + 1 < a.epochs:
+        torch.save({"net": net.state_dict(), "opt": opt.state_dict(), "sch": sch.state_dict(), "best": best, "best_state": best_state, "hist": hist, "epoch": ep + 1,
+                    "py_rng": random.getstate(), "np_rng": np.random.get_state(), "torch_rng": torch.get_rng_state()}, CK); print("CHECKPOINT epoch", ep + 1, flush=True)
+net.load_state_dict(best_state); CK.unlink(missing_ok=True)
 Pd, Sd = predict(dv); Yd, YSd = ys(dv)
 thr = []
 for j in range(len(CLASSES)):
