@@ -7,7 +7,7 @@ from safetensors.torch import save_file
 sys.path.insert(0, str(Path(__file__).parent))
 from quorum_loc import LocModel, trunc
 root = Path(__file__).resolve().parents[1]; rel = root / "release"; rel.mkdir(exist_ok=True); (rel / "onnx").mkdir(exist_ok=True); (rel / "training").mkdir(exist_ok=True)
-REPO = "quorumbio/esm2-localization-signalpeptide"; BASE = "facebook/esm2_t30_150M_UR50D"
+REPO = "quorumbio/esm2-protein-subcellular-localization-signal-peptide"; BASE = "facebook/esm2_t30_150M_UR50D"
 run = root / "models" / "run1_150m"; R = json.load(open(run / "results.json")); R35 = json.load(open(root / "models" / "run1_35m" / "results.json")); P = json.load(open(root / "data" / "provenance.json"))
 ck = torch.load(run / "model.pt", map_location="cpu", weights_only=False)
 cfg = AutoConfig.from_pretrained(BASE); cfg._attn_implementation = "eager"

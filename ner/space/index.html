@@ -13,7 +13,7 @@ mark small{font-size:.65em;margin-left:.3em;opacity:.7}
 .note{font-size:.9rem;color:#555}
 </style></head><body>
 <h1>Biomedical NER: Chemical and Disease</h1>
-<p class="note">Runs entirely in your browser with an int8 ONNX model (first load downloads about 110 MB). English only. Research demo, not for clinical decisions. Model: <a href="https://huggingface.co/quorumbio/biomed-ner-chem-disease">quorumbio/biomed-ner-chem-disease</a> (Apache-2.0).</p>
+<p class="note">Runs entirely in your browser with an int8 ONNX model (first load downloads about 110 MB). English only. Research demo, not for clinical decisions. Model: <a href="https://huggingface.co/quorumbio/biomedical-ner-chemical-disease">quorumbio/biomedical-ner-chemical-disease</a> (Apache-2.0).</p>
 <textarea id="t" rows="6">Lidocaine-induced cardiac asystole developed in a patient with chronic renal failure. Naloxone reverses the antihypertensive effect of clonidine.</textarea>
 <button id="go" disabled>Loading model...</button>
 <div id="out"></div>
@@ -23,7 +23,7 @@ const $ = id => document.getElementById(id);
 const esc = s => s.replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 let ner;
 try {
-  ner = await pipeline("token-classification", "quorumbio/biomed-ner-chem-disease", { dtype: "q8" });
+  ner = await pipeline("token-classification", "quorumbio/biomedical-ner-chemical-disease", { dtype: "q8" });
   $("go").disabled = false; $("go").textContent = "Tag entities";
 } catch (e) { $("go").textContent = "Model failed to load"; $("out").textContent = String(e); }
 async function run() {

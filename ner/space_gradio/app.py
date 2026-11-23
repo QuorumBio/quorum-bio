@@ -1,7 +1,7 @@
 import gradio as gr
 from transformers import pipeline
 
-ner = pipeline("token-classification", model="quorumbio/biomed-ner-chem-disease", aggregation_strategy="simple")
+ner = pipeline("token-classification", model="quorumbio/biomedical-ner-chemical-disease", aggregation_strategy="simple")
 
 def run(text):
     ents = ner(text) if text.strip() else []

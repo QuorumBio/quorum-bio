@@ -2,7 +2,7 @@ from pathlib import Path
 from huggingface_hub import HfApi
 root = Path(__file__).resolve().parents[1]
 api = HfApi(); print("user:", api.whoami()["name"])
-repo = "quorumbio/biomed-ner-chem-disease"; space = "quorumbio/biomed-ner-demo"
+repo = "quorumbio/biomedical-ner-chemical-disease"; space = "quorumbio/biomed-ner-demo"
 api.create_repo(repo, exist_ok=True)
 api.upload_folder(folder_path=str(root / "release"), repo_id=repo, commit_message="Release: BiomedBERT-base NER (Chemical, Disease), ONNX fp32 + int8, training scripts")
 try:

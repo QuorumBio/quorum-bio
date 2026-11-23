@@ -2,7 +2,7 @@ from pathlib import Path
 from huggingface_hub import HfApi
 root = Path(__file__).resolve().parents[1]
 api = HfApi(); print("user:", api.whoami()["name"])
-repo = "quorumbio/biomed-ner-chem-disease"
+repo = "quorumbio/biomedical-ner-chemical-disease"
 try:
     api.create_tag(repo, tag="v1.0", tag_message="v1: BiomedBERT NER trained on BC5CDR only"); print("tagged v1.0")
 except Exception as e: print("tag:", type(e).__name__, str(e)[:200])

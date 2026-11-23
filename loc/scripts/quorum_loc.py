@@ -1,4 +1,4 @@
-"""Inference for quorumbio/esm2-localization-signalpeptide. Usage:
+"""Inference for quorumbio/esm2-protein-subcellular-localization-signal-peptide. Usage:
     from quorum_loc import load, predict
     m = load("path/to/repo")   # folder with model.safetensors + config.json
     predict(m, "MKTAYIAKQR...")"""

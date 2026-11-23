@@ -18,14 +18,14 @@ configs:
 
 # Swiss-Prot subcellular localization and signal peptide (homology-partitioned split)
 
-34,927 reviewed UniProtKB/Swiss-Prot proteins with **experimentally supported** subcellular locations (10 classes, multi-label) and a signal peptide flag. The split is built so that **no validation or test protein has 30% or more sequence identity to any training protein** (MMseqs2). This is the exact data used to train and evaluate [quorumbio/esm2-localization-signalpeptide](https://huggingface.co/quorumbio/esm2-localization-signalpeptide).
+34,927 reviewed UniProtKB/Swiss-Prot proteins with **experimentally supported** subcellular locations (10 classes, multi-label) and a signal peptide flag. The split is built so that **no validation or test protein has 30% or more sequence identity to any training protein** (MMseqs2). This is the exact data used to train and evaluate [quorumbio/esm2-protein-subcellular-localization-signal-peptide](https://huggingface.co/quorumbio/esm2-protein-subcellular-localization-signal-peptide).
 
 Source: UniProt release 2026_04. License: CC BY 4.0, inherited from UniProt (see Attribution).
 
 ## Load
 ```python
 from datasets import load_dataset
-ds = load_dataset("quorumbio/swissprot-localization-signalpeptide")
+ds = load_dataset("quorumbio/swissprot-subcellular-localization-signal-peptide")
 ```
 
 ## Columns
@@ -84,4 +84,4 @@ Data from UniProtKB/Swiss-Prot, (c) the UniProt Consortium, licensed under [CC B
 
 The UniProt Consortium. UniProt: the Universal Protein Knowledgebase in 2025. Nucleic Acids Research 53(D1):D609-D617 (2025).
 
-The split itself may be cited as this dataset (quorumbio/swissprot-localization-signalpeptide).
+The split itself may be cited as this dataset (quorumbio/swissprot-subcellular-localization-signal-peptide).

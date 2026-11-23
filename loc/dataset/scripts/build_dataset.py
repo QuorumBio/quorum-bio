@@ -1,5 +1,5 @@
-"""Build the HF dataset quorumbio/swissprot-localization-signalpeptide from loc/data (the exact split used to train
-quorumbio/esm2-localization-signalpeptide). Writes loc/dataset/: data/{train,validation,test}.parquet, README.md, provenance.json, SHA256SUMS."""
+"""Build the HF dataset quorumbio/swissprot-subcellular-localization-signal-peptide from loc/data (the exact split used to train
+quorumbio/esm2-protein-subcellular-localization-signal-peptide). Writes loc/dataset/: data/{train,validation,test}.parquet, README.md, provenance.json, SHA256SUMS."""
 import hashlib, json, shutil
 from pathlib import Path
 import pyarrow as pa, pyarrow.parquet as pq
@@ -63,14 +63,14 @@ configs:
 
 # Swiss-Prot subcellular localization and signal peptide (homology-partitioned split)
 
-{C['train']['n'] + C['validation']['n'] + C['test']['n']:,} reviewed UniProtKB/Swiss-Prot proteins with **experimentally supported** subcellular locations (10 classes, multi-label) and a signal peptide flag. The split is built so that **no validation or test protein has 30% or more sequence identity to any training protein** (MMseqs2). This is the exact data used to train and evaluate [quorumbio/esm2-localization-signalpeptide](https://huggingface.co/quorumbio/esm2-localization-signalpeptide).
+{C['train']['n'] + C['validation']['n'] + C['test']['n']:,} reviewed UniProtKB/Swiss-Prot proteins with **experimentally supported** subcellular locations (10 classes, multi-label) and a signal peptide flag. The split is built so that **no validation or test protein has 30% or more sequence identity to any training protein** (MMseqs2). This is the exact data used to train and evaluate [quorumbio/esm2-protein-subcellular-localization-signal-peptide](https://huggingface.co/quorumbio/esm2-protein-subcellular-localization-signal-peptide).
 
 Source: UniProt release 2026_04. License: CC BY 4.0, inherited from UniProt (see Attribution).
 
 ## Load
 ```python
 from datasets import load_dataset
-ds = load_dataset("quorumbio/swissprot-localization-signalpeptide")
+ds = load_dataset("quorumbio/swissprot-subcellular-localization-signal-peptide")
 ```
 
 ## Columns
@@ -120,7 +120,7 @@ Data from UniProtKB/Swiss-Prot, (c) the UniProt Consortium, licensed under [CC B
 
 The UniProt Consortium. UniProt: the Universal Protein Knowledgebase in 2025. Nucleic Acids Research 53(D1):D609-D617 (2025).
 
-The split itself may be cited as this dataset (quorumbio/swissprot-localization-signalpeptide).
+The split itself may be cited as this dataset (quorumbio/swissprot-subcellular-localization-signal-peptide).
 """
 (out / "README.md").write_text(card, encoding="utf-8")
 lines = [hashlib.sha256(p.read_bytes()).hexdigest() + "  " + p.relative_to(out).as_posix() for p in sorted(out.rglob("*")) if p.is_file() and p.name != "SHA256SUMS"]

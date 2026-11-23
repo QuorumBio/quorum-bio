@@ -3,16 +3,16 @@ license: apache-2.0
 library_name: transformers
 base_model: facebook/esm2_t30_150M_UR50D
 tags: [biology, bioinformatics, protein, protein-language-model, subcellular-localization, signal-peptide, esm2, uniprot, onnx]
-datasets: [quorumbio/swissprot-localization-signalpeptide]
+datasets: [quorumbio/swissprot-subcellular-localization-signal-peptide]
 model-index:
-- name: esm2-localization-signalpeptide
+- name: esm2-protein-subcellular-localization-signal-peptide
   results:
   - task:
       type: subcellular-localization
       name: Protein subcellular localization (10 classes, multi-label)
     dataset:
       name: Swiss-Prot homology-partitioned split (test)
-      type: quorumbio/swissprot-localization-signalpeptide
+      type: quorumbio/swissprot-subcellular-localization-signal-peptide
       split: test
     metrics:
     - type: roc_auc
@@ -26,7 +26,7 @@ model-index:
       name: Signal peptide presence
     dataset:
       name: Swiss-Prot homology-partitioned split (test)
-      type: quorumbio/swissprot-localization-signalpeptide
+      type: quorumbio/swissprot-subcellular-localization-signal-peptide
       split: test
     metrics:
     - type: roc_auc
@@ -45,7 +45,7 @@ Takes a protein sequence and returns (1) probabilities for 10 subcellular locati
 ## Use
 ```python
 from huggingface_hub import snapshot_download
-import sys; folder = snapshot_download("quorumbio/esm2-localization-signalpeptide"); sys.path.insert(0, folder)
+import sys; folder = snapshot_download("quorumbio/esm2-protein-subcellular-localization-signal-peptide"); sys.path.insert(0, folder)
 from quorum_loc import load, predict
 m = load(folder)
 # Example input only: a serum albumin-like sequence, not a verified UniProt entry. Use your own sequence.
@@ -115,7 +115,7 @@ For the rare classes, this test-set uncertainty (roughly ±0.1 to 0.2 AP) is far
 These numbers are not directly comparable to published tools such as SignalP or DeepLoc, which use different datasets, splits and label definitions. We have not run those tools on this test set.
 
 ## Data
-UniProtKB/Swiss-Prot reviewed entries (CC BY 4.0), retrieved 2026-11-17. Kept proteins of length 30 to 4000 with standard amino acids and at least one subcellular location backed by experimental evidence (ECO:0000269), mapped by name to 10 classes. Signal peptide label: the entry has a UniProt SIGNAL feature of any evidence type, so it can include predicted annotations. In practice most are predicted: of the 450 test positives, 340 (76%) carry sequence-model evidence (ECO:0000255; UniProt curators typically assign this from prediction tools such as SignalP) and only 77 (17%) have experimental evidence (ECO:0000269). On those 77 experimentally supported signal peptides the model's recall is 0.948 (73/77, 95% Wilson interval 0.87 to 0.98) and AUROC 0.995 against all test negatives, about the same as on the sequence-analysis ones (recall 0.950, AUROC 0.995). So the signal peptide score is not just agreement with predicted labels, but the experimental subset is small. Details: `sp_evidence.json`. Clustering: MMseqs2 at 30% identity (coverage 0.8), clusters assigned 80/10/10 to train/dev/test, then dev and test proteins with any hit at 30% or more identity to training proteins were removed. Final sizes: train 30134, dev 2457, test 2336; signal peptide positives 5636, 385, 450. Multiple isoform-specific locations are merged per protein. The exact split is published as the dataset [quorumbio/swissprot-localization-signalpeptide](https://huggingface.co/datasets/quorumbio/swissprot-localization-signalpeptide).
+UniProtKB/Swiss-Prot reviewed entries (CC BY 4.0), retrieved 2026-11-17. Kept proteins of length 30 to 4000 with standard amino acids and at least one subcellular location backed by experimental evidence (ECO:0000269), mapped by name to 10 classes. Signal peptide label: the entry has a UniProt SIGNAL feature of any evidence type, so it can include predicted annotations. In practice most are predicted: of the 450 test positives, 340 (76%) carry sequence-model evidence (ECO:0000255; UniProt curators typically assign this from prediction tools such as SignalP) and only 77 (17%) have experimental evidence (ECO:0000269). On those 77 experimentally supported signal peptides the model's recall is 0.948 (73/77, 95% Wilson interval 0.87 to 0.98) and AUROC 0.995 against all test negatives, about the same as on the sequence-analysis ones (recall 0.950, AUROC 0.995). So the signal peptide score is not just agreement with predicted labels, but the experimental subset is small. Details: `sp_evidence.json`. Clustering: MMseqs2 at 30% identity (coverage 0.8), clusters assigned 80/10/10 to train/dev/test, then dev and test proteins with any hit at 30% or more identity to training proteins were removed. Final sizes: train 30134, dev 2457, test 2336; signal peptide positives 5636, 385, 450. Multiple isoform-specific locations are merged per protein. The exact split is published as the dataset [quorumbio/swissprot-subcellular-localization-signal-peptide](https://huggingface.co/datasets/quorumbio/swissprot-subcellular-localization-signal-peptide).
 
 ## Training
 `training/` has the scripts and `provenance.json` (checksum of the downloaded data). Mean-pooled ESM-2 features feed a 10-way location head; the signal peptide head also sees the mean of the first 30 residues. Binary cross-entropy with class weights (max 10) for rare locations, bf16, gradient checkpointing, AdamW with warmup and linear decay, batch size 8, lr 5e-05, 2 epochs (best dev epoch kept), one RTX 3060, about 99 minutes.

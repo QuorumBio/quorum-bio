@@ -25,12 +25,20 @@ Last updated: 2026-11-22
 | BC5CDR (Chemical, Disease; 1,500 PubMed abstracts) | biocreative.org CDR track; github.com/JHnlp/BioCreative-V-CDR-Corpus | Public Domain Mark 1.0 (per BigBio dataset metadata; confirm on the original site before release) | 2026-11-17 (secondary source only) | NER train/val/test |
 | NCBI-disease (793 abstracts, Disease) | ncbi.nlm.nih.gov/CBBresearch/Dogan/DISEASE | CC0 1.0 per BigBio loader; NCBI public domain notice on HF card | 2026-11-17 (secondary source) | NER train/val/test |
 | JNLPBA / GENIA 3.02 (DNA, RNA, protein, cell line, cell type) | geniaproject.org shared task | CC BY 3.0 annotations; abstracts under NLM PubMed terms. Must ship the GENIA license text + attribution "Corpus annotations (c) GENIA Project" | 2026-11-17 | optional, with attribution in NOTICE |
-| UniProtKB/Swiss-Prot reviewed (release 2026_04) | rest.uniprot.org; uniprot.org/help/license | CC BY 4.0 (redistribution and derivatives allowed with attribution; changes must be indicated) | 2026-11-17, release number confirmed 2026-11-19 | loc model train/dev/test; republished as dataset quorumbio/swissprot-localization-signalpeptide with attribution |
+| UniProtKB/Swiss-Prot reviewed (release 2026_04) | rest.uniprot.org; uniprot.org/help/license | CC BY 4.0 (redistribution and derivatives allowed with attribution; changes must be indicated) | 2026-11-17, release number confirmed 2026-11-19 | loc model train/dev/test; republished as dataset quorumbio/swissprot-subcellular-localization-signal-peptide with attribution |
 | BC2GM (gene mentions) | biocreative.org BioCreative II | NO KNOWN LICENSE (HF/TFDS list none) | not verified | SKIP until a license is confirmed |
 
 ## Eval results
 - run1 (2026-11-17): base microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext (MIT, verified via HF model info), corpus BC5CDR (Chemical, Disease), 5 epochs, bs16, lr5e-5, bf16, seed 13, ~1 GPU run on the 3060. Checkpoint = best validation entity F1 (0.9055, epoch 5). Test entity F1 (seqeval, word-level, sentence-split, evaluated once) = 0.8960 (P 0.8825, R 0.9100). Files: ner/models/run1, logs/ner1.txt. NOTE: not directly comparable to published BC5CDR numbers (different tokenization/metric); do not claim parity in the card.
 - Data stats: BC5CDR train/dev/test = 500/500/500 docs, 0 offset mismatches. NCBI-disease 593/100/100 docs, 1 mismatch in train. sha256 of CDR_Data.zip = 0a359a7f...2016 (full hashes in ner/data/provenance.json).
+
+## Renames (2026-11-22, approved by Mischa)
+Older log entries below use the old names; HF redirects them.
+- quorumbio/biomed-ner-chem-disease -> quorumbio/biomedical-ner-chemical-disease
+- quorumbio/esm2-localization-signalpeptide -> quorumbio/esm2-protein-subcellular-localization-signal-peptide
+- datasets/quorumbio/swissprot-localization-signalpeptide -> datasets/quorumbio/swissprot-subcellular-localization-signal-peptide
+All references updated (cards, model-index names, templates, Spaces, GitHub README, report, quorum_loc docstring, upload scripts); SHA256SUMS regenerated; HF commits loc 986eb0b, NER 8540ebf, dataset 34fe5cf, Spaces 2d8a195 / e98dc1d. Old URLs verified to redirect (page + README resolve), collection followed automatically.
+Search rank after rename (HF list_models search, sorted by downloads): "biomedical ner" #4 of 50 (was absent); "ner chemical disease" #1 of 3; "subcellular localization" #1 of 7 (was absent); "signal peptide" #2 of 6; "protein localization" #2 of 10. Dataset search: "subcellular localization" #6 of 6, "signal peptide" #3 of 3.
 
 ## Releases
 - 2026-11-17: https://huggingface.co/quorumbio/biomed-ner-chem-disease (Apache-2.0; weights, ONNX fp32 + int8 as onnx/model_quantized.onnx, LICENSE, NOTICE, SHA256SUMS, training scripts, provenance). Parity fp32 ONNX vs torch: max logit diff 5.6e-5, argmax agreement 1.0. ONNX test F1 fp32 0.8960 / int8 0.8940 (CPU 24.5 / 13.7 ms per sentence).
@@ -101,7 +109,7 @@ Last updated: 2026-11-22
 - (resolved 2026-11-17) HF token verified from the PC: user quorumbio, role write. Token is in C:\QuorumBio\.env (gitignored); scripts load it from there.
 
 ## Next best action
-1. Renames (waiting on Mischa; see NEEDS_HUMAN). If approved, run the renames and update every reference listed above in one pass; check old names redirect (model_info on old id + HEAD of README.md resolve, no counted downloads).
+1. Renames DONE 2026-11-22. Logo drafts in brand/ await Mischa's review (NEEDS_HUMAN 7); do not upload before approval.
 2. Third model (recommended): multi-type biomedical NER (Chemical, Disease, Gene, Species; maybe Variant, CellLine) from BC5CDR + NCBI-disease + NLM-Gene + LINNAEUS + BioRED, with per-type BIO heads so each corpus only supervises the types it annotates (fixes the run2b failure: O labels kept per annotated type). BiomedBERT-base, ~10-20 min per run on the 3060. First: verify licenses on source pages and record them in the provenance table; then data prep; ask Mischa before GPU.
 3. Signal peptide cleavage site: lower priority (only ~18% experimental labels; niche small).
 4. Keep logging downloads; check search rank after any rename.

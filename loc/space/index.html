@@ -6,10 +6,10 @@
 <textarea id="seq" placeholder="MKWVTFISLLLLFSSAYS..."></textarea><br>
 <button id="go">Predict</button><button id="ex">Example: serum albumin-like sequence</button><span id="status">Model not loaded yet</span>
 <div id="out"></div>
-<p class="weak">Weak classes: Golgi apparatus, Lysosome/Vacuole, Peroxisome (shown in amber). Probabilities are not calibrated. Model card: <a href="https://huggingface.co/quorumbio/esm2-localization-signalpeptide">quorumbio/esm2-localization-signalpeptide</a>.</p>
+<p class="weak">Weak classes: Golgi apparatus, Lysosome/Vacuole, Peroxisome (shown in amber). Probabilities are not calibrated. Model card: <a href="https://huggingface.co/quorumbio/esm2-protein-subcellular-localization-signal-peptide">quorumbio/esm2-protein-subcellular-localization-signal-peptide</a>.</p>
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
 <script>
-const REPO="https://huggingface.co/quorumbio/esm2-localization-signalpeptide/resolve/main/";
+const REPO="https://huggingface.co/quorumbio/esm2-protein-subcellular-localization-signal-peptide/resolve/main/";
 const EX="MKWVTFISLLLLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCVADESAENCDKSLHTLFGDKLCTVATLRETYGEMADCCAKQEPERNECFLQHKDDNPNLPRLVRPEVDVMCTAFHDNEETFLKKYLYEIARRHPYFYAPELLFFAKRYKAAFTECCQAADKAACLLPKLDELRDEGKASSAKQRLKCASLQKFGERAFKAWAVARLSQRFPKAEFAEVSKLVTDLTKVHTECCHGDLLECADDRADLAKYICENQDSISSKLKECCEKPLLEKSHCIAEVENDEMPADLPSLAADFVESKDVCKNYAEAKDVFLGMFLYEYARRHPDYSVVLLLRLAKTYETTLEKCCAAADPHECYAKVFDEFKPLVEEPQNLIKQNCELFEQLGEYKFQNALLVRYTKKVPQVSTPTLVEVSRNLGKVGSKCCKHPEAKRMPCAEDYLSVVLNQLCVLHEKTPVSDRVTKCCTESLVNRRPCFSALEVDETYVPKEFNAETFTFHADICTLSEKERQIKKQTALVELVKHKPKATKEQLKAVMDDFAAFVEKCCKADDKETCFAEEGKKLVAASQAALGL";
 const WEAK=new Set(["Golgi apparatus","Lysosome/Vacuole","Peroxisome"]);
 let sess=null,vocab=null,cfg=null;const $=id=>document.getElementById(id);

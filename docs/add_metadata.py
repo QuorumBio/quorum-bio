@@ -30,7 +30,7 @@ def ner_yaml(ab, an, lit):
       name: Entity recall"""
     return f"""datasets: [bigbio/bc5cdr, ncbi/ncbi_disease]
 model-index:
-- name: biomed-ner-chem-disease
+- name: biomedical-ner-chemical-disease
   results:
 {res("BC5CDR (Chemical + Disease)", "bigbio/bc5cdr", "ab", "seqeval, own word tokenization; not comparable to published BC5CDR numbers")}
 {res("NCBI-disease (Disease)", "ncbi/ncbi_disease", "an", "seqeval, own word tokenization; not comparable to published numbers")}
@@ -45,11 +45,11 @@ def loc_yaml(T, lit):
       name: {n}"""
     ds = """    dataset:
       name: Swiss-Prot homology-partitioned split (test)
-      type: quorumbio/swissprot-localization-signalpeptide
+      type: quorumbio/swissprot-subcellular-localization-signal-peptide
       split: test"""
-    return f"""datasets: [quorumbio/swissprot-localization-signalpeptide]
+    return f"""datasets: [quorumbio/swissprot-subcellular-localization-signal-peptide]
 model-index:
-- name: esm2-localization-signalpeptide
+- name: esm2-protein-subcellular-localization-signal-peptide
   results:
   - task:
       type: subcellular-localization

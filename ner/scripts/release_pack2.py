@@ -2,7 +2,7 @@
 import json, shutil, hashlib
 from pathlib import Path
 root = Path(__file__).resolve().parents[1]
-REPO = "quorumbio/biomed-ner-chem-disease"
+REPO = "quorumbio/biomedical-ner-chemical-disease"
 BASE = "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext"
 rel = root / "release"; run = root / "models" / "run2a"
 R = json.load(open(run / "results.json")); E = json.load(open(root / "results" / "eval_v2.json"))
@@ -45,7 +45,7 @@ pipeline_tag: token-classification
 tags: [biomedical, biomedical-ner, ner, chemical, disease, bc5cdr, ncbi-disease, pubmed, onnx, transformers.js]
 datasets: [bigbio/bc5cdr, ncbi/ncbi_disease]
 model-index:
-- name: biomed-ner-chem-disease
+- name: biomedical-ner-chemical-disease
   results:
   - task:
       type: token-classification
