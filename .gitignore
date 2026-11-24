@@ -4,6 +4,7 @@ __pycache__/
 *.pt
 *.safetensors
 *.onnx
+*.onnx_data
 data/raw/
 CREDENTIALS.md
 .env

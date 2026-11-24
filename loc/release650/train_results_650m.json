@@ -1,0 +1,155 @@
+{
+  "base": "facebook/esm2_t33_650M_UR50D",
+  "args": {
+    "base": "facebook/esm2_t33_650M_UR50D",
+    "out": "loc/models/run650",
+    "epochs": 3,
+    "bs": 2,
+    "lr": 5e-05,
+    "seed": 13,
+    "smoke": false,
+    "pw_clip": 10.0,
+    "loss": "bce",
+    "gamma": 2.0,
+    "pool": "mean",
+    "no_test": false,
+    "accum": 4,
+    "freeze_layers": 16,
+    "resume": true,
+    "mem_fraction": 0.92
+  },
+  "val_history": [
+    {
+      "epoch": 1,
+      "train_loss": 8684.331616654992,
+      "dev_macro_auroc_loc": 0.9006183604585823,
+      "dev_sp_auroc": 0.9958757458757458,
+      "dev_macro_ap_loc": 0.6727592007071548,
+      "dev_rare_ap": 0.4183467366185409,
+      "select": 0.9482470531671641,
+      "minutes": 146.27463114261627
+    },
+    {
+      "epoch": 2,
+      "train_loss": 5694.493436379358,
+      "dev_macro_auroc_loc": 0.9077890338223646,
+      "dev_sp_auroc": 0.9963715338715339,
+      "dev_macro_ap_loc": 0.6978978734956011,
+      "dev_rare_ap": 0.4919987629189917,
+      "select": 0.9520802838469493,
+      "minutes": 302.3234440525373
+    },
+    {
+      "epoch": 3,
+      "train_loss": 3925.6355085000396,
+      "dev_macro_auroc_loc": 0.901835683797873,
+      "dev_sp_auroc": 0.9960349496063783,
+      "dev_macro_ap_loc": 0.7004263010887225,
+      "dev_rare_ap": 0.49907614252431404,
+      "select": 0.9489353167021257,
+      "minutes": 417.38505023320516
+    }
+  ],
+  "dev_at_best": {
+    "macro_ap_loc": 0.6978978734956011,
+    "rare_ap": 0.4919987629189917,
+    "per_class_ap": {
+      "Nucleus": 0.8862615634321249,
+      "Cytoplasm": 0.8285587450932651,
+      "Extracellular": 0.8960361885803706,
+      "Mitochondrion": 0.7170762520620154,
+      "Cell membrane": 0.7682240315548308,
+      "Endoplasmic reticulum": 0.5648673648399666,
+      "Plastid": 0.8419583006364614,
+      "Golgi apparatus": 0.3562137623650876,
+      "Lysosome/Vacuole": 0.310330619458318,
+      "Peroxisome": 0.8094519069335694
+    },
+    "macro_f1_at_dev_thr": 0.689676170758861
+  },
+  "selection": "best dev mean(macro AUROC locations, SP AUROC); thresholds on dev; test scored once",
+  "train_minutes": 423.51336975892383,
+  "test": {
+    "n": 2336,
+    "per_class": {
+      "Nucleus": {
+        "auroc": 0.9314461342161529,
+        "avg_precision": 0.8866205720720797,
+        "f1_at_dev_threshold": 0.7774725274725275,
+        "threshold": 0.6,
+        "n_pos": 716
+      },
+      "Cytoplasm": {
+        "auroc": 0.9043589242162634,
+        "avg_precision": 0.818120169932975,
+        "f1_at_dev_threshold": 0.797962648556876,
+        "threshold": 0.49999999999999994,
+        "n_pos": 842
+      },
+      "Extracellular": {
+        "auroc": 0.9844933870122787,
+        "avg_precision": 0.9259584009626077,
+        "f1_at_dev_threshold": 0.8712871287128713,
+        "threshold": 0.75,
+        "n_pos": 351
+      },
+      "Mitochondrion": {
+        "auroc": 0.91706727426377,
+        "avg_precision": 0.7498914931033027,
+        "f1_at_dev_threshold": 0.7212276214833759,
+        "threshold": 0.7,
+        "n_pos": 221
+      },
+      "Cell membrane": {
+        "auroc": 0.9301787923832618,
+        "avg_precision": 0.7455253234590367,
+        "f1_at_dev_threshold": 0.6841243862520459,
+        "threshold": 0.7,
+        "n_pos": 295
+      },
+      "Endoplasmic reticulum": {
+        "auroc": 0.9284595090951494,
+        "avg_precision": 0.6920481239983894,
+        "f1_at_dev_threshold": 0.636144578313253,
+        "threshold": 0.7999999999999999,
+        "n_pos": 192
+      },
+      "Plastid": {
+        "auroc": 0.983332276072063,
+        "avg_precision": 0.8691359622662386,
+        "f1_at_dev_threshold": 0.8089887640449438,
+        "threshold": 0.75,
+        "n_pos": 84
+      },
+      "Golgi apparatus": {
+        "auroc": 0.9003628125638754,
+        "avg_precision": 0.3745972629994506,
+        "f1_at_dev_threshold": 0.3660130718954248,
+        "threshold": 0.85,
+        "n_pos": 78
+      },
+      "Lysosome/Vacuole": {
+        "auroc": 0.9205480629246199,
+        "avg_precision": 0.4337615541059578,
+        "f1_at_dev_threshold": 0.5,
+        "threshold": 0.75,
+        "n_pos": 88
+      },
+      "Peroxisome": {
+        "auroc": 0.9542993729434408,
+        "avg_precision": 0.44599148581267783,
+        "f1_at_dev_threshold": 0.3829787234042553,
+        "threshold": 0.65,
+        "n_pos": 35
+      }
+    },
+    "macro_auroc_loc": 0.9354546545690875,
+    "macro_f1_loc": 0.6546199450135574,
+    "signal_peptide": {
+      "auroc": 0.9918263226110522,
+      "mcc_at_dev_threshold": 0.9458442348428158,
+      "threshold": 0.75,
+      "n_pos": 450
+    }
+  }
+}

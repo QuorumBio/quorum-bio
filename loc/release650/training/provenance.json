@@ -1,0 +1,68 @@
+{
+  "sources": {
+    "uniprot_url": "https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=tsv&query=%28reviewed%3Atrue%29&fields=accession%2Csequence%2Clength%2Cft_signal%2Ccc_subcellular_location%2Corganism_id",
+    "uniprot_license": "CC BY 4.0",
+    "sprot_tsv_sha256": "f4f990081c614fc078260e9bc89f6b5fa2fafe3c3379fd72759c082c247a86f2"
+  },
+  "counts": {
+    "swissprot_entries": 576073,
+    "kept_with_experimental_location": 37733
+  },
+  "clusters": 20269,
+  "pre_filter_split": {
+    "train": 30134,
+    "dev": 3785,
+    "test": 3814
+  },
+  "removed_dev_similar_to_train": 1328,
+  "removed_test_similar_to_train": 1478,
+  "final_split": {
+    "train": 30134,
+    "dev": 2457,
+    "test": 2336
+  },
+  "class_counts": {
+    "train": {
+      "Nucleus": 9064,
+      "Cytoplasm": 10332,
+      "Extracellular": 5621,
+      "Mitochondrion": 2659,
+      "Cell membrane": 4349,
+      "Endoplasmic reticulum": 2027,
+      "Plastid": 1029,
+      "Golgi apparatus": 1280,
+      "Lysosome/Vacuole": 858,
+      "Peroxisome": 343
+    },
+    "dev": {
+      "Nucleus": 835,
+      "Cytoplasm": 948,
+      "Extracellular": 346,
+      "Mitochondrion": 204,
+      "Cell membrane": 305,
+      "Endoplasmic reticulum": 186,
+      "Plastid": 70,
+      "Golgi apparatus": 115,
+      "Lysosome/Vacuole": 62,
+      "Peroxisome": 62
+    },
+    "test": {
+      "Nucleus": 716,
+      "Cytoplasm": 842,
+      "Extracellular": 351,
+      "Mitochondrion": 221,
+      "Cell membrane": 295,
+      "Endoplasmic reticulum": 192,
+      "Plastid": 84,
+      "Golgi apparatus": 78,
+      "Lysosome/Vacuole": 88,
+      "Peroxisome": 35
+    }
+  },
+  "signal_peptide_positive": {
+    "train": 5636,
+    "dev": 385,
+    "test": 450
+  },
+  "notes": "Locations kept only when annotated with ECO:0000269 (experimental). Signal peptide label = UniProt SIGNAL feature of any evidence. Splits are cluster-level at 30% identity (mmseqs2 -c 0.8), then dev/test sequences with any >=30% identity hit (coverage 0.5, sensitivity 7.5) to train were removed. This is a homology-reduced split, not identical to the DeepLoc/SignalP partitions, so numbers are not directly comparable to published ones."
+}

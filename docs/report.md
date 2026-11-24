@@ -5,7 +5,7 @@ Code: https://github.com/QuorumBio/quorum-bio. Models and data: https://huggingf
 
 ## Abstract
 
-We release four fine-tuned models and one dataset, all under permissive licenses, with training scripts, checksums and ONNX exports. (1) `quorumbio/biomedical-ner-chemical-disease` is a BiomedBERT-base token classifier for Chemical and Disease mentions, trained on BC5CDR and NCBI-disease. Over 5 training seeds its test entity F1 is 0.889 ± 0.002 on BC5CDR and 0.872 ± 0.002 on NCBI-disease. A companion model, `quorumbio/biomedical-ner-gene-chemical-disease-species`, tags six entity types (Gene, Chemical, Disease, Species, Variant, CellLine) using a partial-label loss over four partially annotated corpora; it matches the Chemical/Disease model on BC5CDR (0.888 F1) and reaches 0.933 on NLM-Gene and 0.898 on BioRED (Section 2.6). A distilled 6-layer version is about twice as fast at 0.01 to 0.02 lower F1 (Section 2.7). (2) `quorumbio/esm2-protein-subcellular-localization-signal-peptide` is an ESM-2 150M model that predicts 10 subcellular locations (multi-label) and the presence of an N-terminal signal peptide. On a test set with no protein at 30% or more identity to any training protein, over 3 seeds, it reaches location macro AUROC 0.927 ± 0.001, macro F1 0.645 ± 0.009, and signal peptide AUROC 0.993 ± 0.001 with MCC 0.956. It is weak on three rare compartments (Golgi, lysosome/vacuole, peroxisome; AP 0.36 to 0.38), and a pre-registered screen of three fixes (stronger class weights, focal loss, attention pooling) did not help. (3) `quorumbio/swissprot-subcellular-localization-signal-peptide` is the exact train/validation/test split used for (2), 34,927 Swiss-Prot proteins with experimentally supported locations, published under CC BY 4.0. Everything was trained on one consumer GPU (RTX 3060, 12 GB) at no compute cost. None of our numbers are directly comparable to published benchmark results, because splits, tokenization and label definitions differ. Section 5 explains this.
+We release five fine-tuned models and one dataset, all under permissive licenses, with training scripts, checksums and ONNX exports. (1) `quorumbio/biomedical-ner-chemical-disease` is a BiomedBERT-base token classifier for Chemical and Disease mentions, trained on BC5CDR and NCBI-disease. Over 5 training seeds its test entity F1 is 0.889 ± 0.002 on BC5CDR and 0.872 ± 0.002 on NCBI-disease. A companion model, `quorumbio/biomedical-ner-gene-chemical-disease-species`, tags six entity types (Gene, Chemical, Disease, Species, Variant, CellLine) using a partial-label loss over four partially annotated corpora; it matches the Chemical/Disease model on BC5CDR (0.888 F1) and reaches 0.933 on NLM-Gene and 0.898 on BioRED (Section 2.6). A distilled 6-layer version is about twice as fast at 0.01 to 0.02 lower F1 (Section 2.7). (2) `quorumbio/esm2-protein-subcellular-localization-signal-peptide` is an ESM-2 150M model that predicts 10 subcellular locations (multi-label) and the presence of an N-terminal signal peptide. On a test set with no protein at 30% or more identity to any training protein, over 3 seeds, it reaches location macro AUROC 0.927 ± 0.001, macro F1 0.645 ± 0.009, and signal peptide AUROC 0.993 ± 0.001 with MCC 0.956. It is weak on three rare compartments (Golgi, lysosome/vacuole, peroxisome; AP 0.36 to 0.38), and a pre-registered screen of three fixes (stronger class weights, focal loss, attention pooling) did not help. A larger ESM-2 650M version ranks locations slightly better (macro AUROC +0.010 [+0.001, +0.019] on the same test proteins, single seed) but is not better on signal peptides or rare classes (Section 3.6). (3) `quorumbio/swissprot-subcellular-localization-signal-peptide` is the exact train/validation/test split used for (2), 34,927 Swiss-Prot proteins with experimentally supported locations, published under CC BY 4.0. Everything was trained on one consumer GPU (RTX 3060, 12 GB) at no compute cost. None of our numbers are directly comparable to published benchmark results, because splits, tokenization and label definitions differ. Section 5 explains this.
 
 ## 1. Motivation and scope
 
@@ -178,6 +178,22 @@ All three variants scored lower than the baseline on both rare-class AP and macr
 - A static Space (`quorumbio/protein-localization-demo`) runs the int8 model in the browser.
 - `quorum_loc.py` gives a two-line Python loader.
 
+### 3.6 A 650M backbone (`quorumbio/esm2-650m-protein-subcellular-localization-signal-peptide`)
+We also fine-tuned ESM-2 650M (`esm2_t33_650M_UR50D`) with the same data, split, heads and loss. Full fine-tuning does not fit in 12 GB at any batch size. Memory tests fixed the recipe before training: embeddings and the bottom 16 of 33 layers frozen, batch 2 with 4-step gradient accumulation (effective batch 8), gradient checkpointing, 3 epochs, a single seed (13). The rule set in advance: compare with the 150M on the dev selection score and package only if it is higher. Dev selection scores by epoch were 0.9482, 0.9521 and 0.9489, against 0.9478 for the 150M, so epoch 2 was kept and the test set was scored once. Training took 7.1 hours.
+
+On test, a paired cluster bootstrap (both models' predictions resampled over the same 1,475 test clusters, 2,000 resamples) gives 650M minus 150M:
+
+| Metric | Difference | 95% interval |
+|---|---|---|
+| Location macro AUROC | +0.010 | +0.001 to +0.019 |
+| Location macro AP | +0.020 | −0.008 to +0.052 |
+| Location macro F1 | −0.001 | −0.043 to +0.042 |
+| Rare-class mean AP | +0.033 | −0.048 to +0.128 |
+| Signal peptide AUROC | −0.002 | −0.008 to +0.003 |
+| Signal peptide MCC | −0.007 | −0.019 to +0.004 |
+
+Only the location AUROC gain is clearly above zero, and it is larger than the 150M seed SD (0.001). The 650M is not better on signal peptides or the rare classes, so the 150M stays the default and keeps the browser demo. The 650M is released as a separate repository with its single-seed status stated. Scripts: `loc/scripts/release_loc650.py`, `card_loc650.py`, and `bootstrap_loc.py` with a fourth argument for the paired comparison.
+
 ## 4. Release practice
 Each repository ships the following:
 - `LICENSE`: Apache-2.0 for the models, CC BY 4.0 for the dataset.
@@ -197,7 +213,7 @@ We verified the hub copies against local checksums using metadata only. We do no
 - Neither model is validated for clinical, diagnostic or safety-critical use.
 
 ## 6. Reproducibility
-All steps run on one RTX 3060 (12 GB) under Windows with PyTorch 2.14 / CUDA 13.0. Compute cost: $0. Training a NER model takes about 5 minutes, and training a 150M localization model takes about 100 minutes. Scripts:
+All steps run on one RTX 3060 (12 GB) under Windows with PyTorch 2.14 / CUDA 13.0. Compute cost: $0. Training a NER model takes about 5 minutes, training a 150M localization model takes about 100 minutes, and the 650M (partly frozen) about 7 hours. Scripts:
 - NER: `ner/scripts/`, including `prepare_data.py` and `train2.py`.
 - Localization: `loc/scripts/`, including `prepare_uniprot.py`, `train_loc.py` and `build_dataset.py`.
 - Seed aggregation: `docs/seed_summary.py`.

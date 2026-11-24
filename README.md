@@ -8,6 +8,7 @@ Small open biology models on [Hugging Face](https://huggingface.co/quorumbio), w
 ## Models
 - [quorumbio/biomedical-ner-chemical-disease](https://huggingface.co/quorumbio/biomedical-ner-chemical-disease): Chemical and Disease NER (BiomedBERT-base fine-tuned on BC5CDR and NCBI-disease), PyTorch and ONNX (fp32, int8). Apache-2.0. [Browser demo](https://huggingface.co/spaces/quorumbio/biomed-ner-demo).
 - [quorumbio/esm2-protein-subcellular-localization-signal-peptide](https://huggingface.co/quorumbio/esm2-protein-subcellular-localization-signal-peptide): protein subcellular localization (10 classes) and signal peptide presence (ESM-2 150M), PyTorch and ONNX. Apache-2.0. [Browser demo](https://huggingface.co/spaces/quorumbio/protein-localization-demo).
+- [quorumbio/esm2-650m-protein-subcellular-localization-signal-peptide](https://huggingface.co/quorumbio/esm2-650m-protein-subcellular-localization-signal-peptide): the same task on ESM-2 650M (single seed). Slightly better location ranking (macro AUROC +0.010), not better on signal peptides or rare classes; about 4x larger. Apache-2.0.
 
 - [quorumbio/biomedical-ner-gene-chemical-disease-species](https://huggingface.co/quorumbio/biomedical-ner-gene-chemical-disease-species): one model for six entity types (Gene, Chemical, Disease, Species, Variant, CellLine), trained with a partial-label loss on BC5CDR, NCBI-disease, NLM-Gene and BioRED. PyTorch and ONNX (fp32, int8). Apache-2.0. [Browser demo](https://huggingface.co/spaces/quorumbio/biomedical-ner-6-types-demo).
 

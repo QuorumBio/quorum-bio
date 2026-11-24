@@ -113,6 +113,8 @@ Takes a protein sequence and returns (1) probabilities for 10 subcellular locati
 
 **Short version.** Signal peptide detection is strong (AUROC {f3(S['auroc'])}, MCC {f3(S['mcc_at_dev_threshold'])}). Location prediction is decent for common compartments (nucleus, cytoplasm, extracellular, plastid) and **weak for Golgi, lysosome/vacuole and peroxisome**: do not rely on those three.
 
+**Larger version.** [quorumbio/esm2-650m-protein-subcellular-localization-signal-peptide](https://huggingface.co/quorumbio/esm2-650m-protein-subcellular-localization-signal-peptide) (ESM-2 650M, same data and split) ranks locations slightly better (macro AUROC +0.010 on the same test proteins) but is not better on signal peptides or rare classes, and is about 4x larger. This 150M model remains the default.
+
 ## Use
 ```python
 from huggingface_hub import snapshot_download

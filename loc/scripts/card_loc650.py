@@ -13,10 +13,18 @@ best = max(H, key=lambda m: m["select"]); best150 = max(R150["val_history"], key
 assert best["select"] > best150["select"], "650M is not better than 150M on validation; record a negative result instead of releasing"
 pk = [k for k in B if k.startswith("paired_difference_vs_")]; PD = B[pk[0]] if pk else None
 f3 = lambda x: f"{x:.3f}"
+SEED150 = json.load(open(root / "release" / "seed_results.json"))
+def iv(k): v = PD[k]; return f"{v['point']:+.3f} [{v['lo']:+.3f}, {v['hi']:+.3f}]"
+better = [k for k in PD if PD[k]["lo"] > 0]; worse = [k for k in PD if PD[k]["hi"] < 0]
+short = (f"Compared with the 150M model on the same test proteins, location macro AUROC is {iv('macro_auroc')} higher (95% interval from a paired cluster bootstrap), "
+         f"larger than the 150M's seed-to-seed SD of {SEED150['macro_auroc_loc']['std']:.3f}. "
+         f"Location macro AP ({iv('macro_ap')}), rare-class AP ({iv('rare_ap')}) and macro F1 ({iv('macro_f1')}) are not clearly different. "
+         f"Signal peptide prediction is not better: AUROC {iv('sp_auroc')}, MCC {iv('sp_mcc')}. Golgi, lysosome/vacuole and peroxisome remain weak (AP under 0.5).")
+assert better == ["macro_auroc"] and not worse, (better, worse)  # the sentence above is written for this outcome
 def ci(k): c = B["ci"][k]; return f"{c['lo']:.3f} to {c['hi']:.3f}"
 sp, sp150 = T["signal_peptide"], T150["signal_peptide"]
 rows = "\n".join(f"| {c} | {v['n_pos']} | {f3(v['auroc'])} | {f3(v['avg_precision'])} | {f3(v['f1_at_dev_threshold'])} | {f3(T150['per_class'][c]['avg_precision'])} | {f3(T150['per_class'][c]['f1_at_dev_threshold'])} |" for c, v in T["per_class"].items())
-hist = "\n".join(f"| {m['epoch']} | {f3(m['dev_macro_auroc_loc'])} | {f3(m['dev_sp_auroc'])} | {f3(m['dev_macro_ap_loc'])} | {f3(m['dev_rare_ap'])} | {m['select']:.4f} |" for m in H)
+hist = "\n".join(f"| {m['epoch']} | {f3(m['dev_macro_auroc_loc'])} | {f3(m['dev_sp_auroc'])} | {f3(m['dev_macro_ap_loc'])} | {f3(m['dev_rare_ap'])} | {m['select']:.4f}{' (kept)' if m is best else ''} |" for m in H)
 names = {"macro_auroc": "Location macro AUROC", "macro_ap": "Location macro AP", "macro_f1": "Location macro F1", "rare_ap": "Mean AP, Golgi / Lysosome / Peroxisome", "sp_auroc": "Signal peptide AUROC", "sp_mcc": "Signal peptide MCC"}
 pd_rows = "\n".join(f"| {names[k]} | {v['point']:+.3f} | {v['lo']:+.3f} to {v['hi']:+.3f} | {100 * v['share_this_better']:.0f}% |" for k, v in PD.items()) if PD else ""
 ci_rows = "\n".join(f"| {names[k]} | {f3(B['ci'][k]['point'])} | {ci(k)} |" for k in names if k in B["ci"])
@@ -67,7 +75,9 @@ model-index:
 
 The larger version of [{SMALL}](https://huggingface.co/{SMALL}): same data, same split, same heads, fine-tuned from `{R['base']}` (650M parameters) instead of the 150M ESM-2. It takes a protein sequence and returns probabilities for 10 subcellular locations (multi-label) and the probability of an N-terminal signal peptide.
 
-**Which one to use.** Start with the 150M model unless you need the last bit of accuracy: it has about 4x fewer parameters, has a browser demo, and was checked over 3 seeds. The comparison below uses the same test set and the same resampled clusters for both models. This 650M model is a single training run (seed {A['seed']}).
+**Short version.** {short}
+
+**Which one to use.** For most uses, the 150M model: it has about 4x fewer parameters, a browser demo, and was checked over 3 seeds. This 650M model is a single training run (seed {A['seed']}). Use it if you want the somewhat better location ranking and can afford the size.
 
 ## Use
 ```python
@@ -114,7 +124,7 @@ Identical to the 150M model: UniProtKB/Swiss-Prot reviewed entries (CC BY 4.0), 
 ## Training
 Same heads and loss as the 150M model: mean-pooled ESM-2 features into a 10-way location head, a signal peptide head that also sees the mean of the first 30 residues, binary cross-entropy with class weights (max 10), bf16, AdamW with warmup and linear decay, lr {A['lr']:g}.
 
-What differs, and why: full fine-tuning of 650M parameters does not fit in the 12 GB of our single RTX 3060. We froze the embeddings and the bottom {fz} of 33 encoder layers and trained the top {33 - fz} layers plus the heads, with gradient checkpointing, batch size {A['bs']} and gradient accumulation {A.get('accum', 1)} (effective batch {eff}, the 150M used 8), for {A['epochs']} epochs (the 150M used 2). These choices were fixed before training from memory tests, not tuned on validation. The epoch with the best validation score (mean of location macro AUROC and signal peptide AUROC) was kept. Training took about {minutes / 60:.1f} hours.
+What differs, and why: full fine-tuning of 650M parameters does not fit in the 12 GB of our single RTX 3060. We froze the embeddings and the bottom {fz} of 33 encoder layers and trained the top {33 - fz} layers plus the heads, with gradient checkpointing, batch size {A['bs']} and gradient accumulation {A.get('accum', 1)} (effective batch {eff}; the 150M used batch 8 without accumulation), for {A['epochs']} epochs (the 150M used 2). These choices were fixed before training from memory tests, not tuned on validation. The epoch with the best validation score (mean of location macro AUROC and signal peptide AUROC) was kept. Training took about {minutes / 60:.1f} hours.
 
 | Epoch | Dev macro AUROC | Dev SP AUROC | Dev macro AP | Dev rare AP | Selection score |
 |---|---|---|---|---|---|
