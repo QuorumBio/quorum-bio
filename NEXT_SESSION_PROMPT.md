@@ -17,6 +17,7 @@ State at handoff (2026-11-22 late evening; verify in COMPANY_STATE.md):
 - GPU etiquette: the PC is Mischa's gaming PC. Before any long GPU job, ask whether it is free, check nvidia-smi, and ask Mischa to pause Windows Update.
 
 Next best actions, in order:
+0. The 650M seed-1 run (pre-registered in COMPANY_STATE) was lost to a PC restart on 2026-11-24 ~11:30 before its first checkpoint. Before rerunning: add mid-epoch checkpointing (~every 30 min) to train_loc.py, then rerun run_loc650_s1.sh only on a night Mischa confirms the GPU is free.
 1. Log download/like counts (first counts after the renames).
 2. Check v3 / v3-small / 650M downloads and search rank ('biomedical ner', 'gene ner', 'subcellular localization', 'esm2 localization').
 3. Ideas after v3: a v3 note in outreach drafts; SP cleavage site (low priority); consider a smaller/faster NER variant (e.g. distilled) only if there is demand.
