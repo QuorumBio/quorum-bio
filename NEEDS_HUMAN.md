@@ -10,3 +10,4 @@
 10. (2026-11-23) DONE: small six-type NER published (Mischa: "publish anything you want").
 11. (2026-11-23) The PC went to sleep at 22:37 last night (sleep requested via Start menu or a program, not the idle timer), so the 12 h GPU window mostly went unused. For future overnight runs please don't put it to sleep. The 650M protein run (~7 h) is ready whenever the PC can stay awake that long.
 12. (2026-11-23) DONE: the 650M protein model finished (7.1 h) and is published as quorumbio/esm2-650m-protein-subcellular-localization-signal-peptide. It is only slightly better than the 150M (location ranking), so the 150M stays the default and keeps the demo. Nothing needed from you.
+13. (2026-11-24) The PC went to sleep again at 00:10 (an explicit sleep request, not the idle timer; my keep-awake can't block that). The 650M seed-1 run is still going but only ~1/3 done. Tell me whether to let it keep running while you game (it slows both) or stop it.
